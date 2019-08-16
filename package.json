@@ -1,10 +1,11 @@
 {
-  "name": "node-template",
-  "version": "1.0.0",
+  "name": "@io-maana/q-lang",
+  "version": "3.2.1-beta.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
+    "gen-parser": "nearleyc src/grammar.ne -o src/grammar.js",
     "serve": "NODE_ENV=PRODUCTION node src/index.js",
     "start": "node src/index.js"
   },
@@ -25,7 +26,9 @@
     "prettier": "^1.18.2"
   },
   "dependencies": {
+    "minimist": "^1.2.0",
     "moo": "^0.5.0",
+    "mz": "^2.7.0",
     "nearley": "^2.18.0"
   }
 }

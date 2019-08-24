@@ -124,9 +124,9 @@ var grammar = {
     {"name": "__", "symbols": ["__$ebnf$1"], "postprocess": function(d) {return null;}},
     {"name": "wschar", "symbols": [/[ \t\n\v\f]/], "postprocess": id},
     {"name": "input", "symbols": ["__", "preamble", "__"], "postprocess":  (data) => { 
-          console.log("data", JSON.stringify(data))
+          //console.log("data", JSON.stringify(data))
           const res = ({ ...data[0], ...data[1] })
-          console.log("\n\nres", res)
+          //console.log("\n\nres", res)
           return res
         }},
     {"name": "preamble", "symbols": ["service", "_", "imports"], "postprocess": (data) => ({ ...data[0], imports: data[2] })},
@@ -135,9 +135,13 @@ var grammar = {
     {"name": "definition", "symbols": ["type"], "postprocess": id},
     {"name": "definition", "symbols": ["function"], "postprocess": id},
     {"name": "service$string$1", "symbols": [{"literal":"s"}, {"literal":"e"}, {"literal":"r"}, {"literal":"v"}, {"literal":"i"}, {"literal":"c"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "service", "symbols": ["service$string$1", "__", "name"], "postprocess": (data) => ({ service: data[2] })},
+    {"name": "service", "symbols": ["service$string$1", "__", "service_name"], "postprocess": (data) => ({ service: data[2] })},
     {"name": "import$string$1", "symbols": [{"literal":"i"}, {"literal":"m"}, {"literal":"p"}, {"literal":"o"}, {"literal":"r"}, {"literal":"t"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "import", "symbols": ["import$string$1", "__", "name"], "postprocess": (data) => ({ import: data[2] })},
+    {"name": "import$ebnf$1", "symbols": ["as"], "postprocess": id},
+    {"name": "import$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "import", "symbols": ["import$string$1", "__", "service_name", "import$ebnf$1"], "postprocess": (data) => ({ import: data[2], as: data[3] })},
+    {"name": "as$string$1", "symbols": [{"literal":"a"}, {"literal":"s"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "as", "symbols": ["__", "as$string$1", "__", "name"], "postprocess": (data) => data[3]},
     {"name": "type$string$1", "symbols": [{"literal":"t"}, {"literal":"y"}, {"literal":"p"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "type", "symbols": ["type$string$1"]},
     {"name": "function$string$1", "symbols": [{"literal":"f"}, {"literal":"u"}, {"literal":"n"}, {"literal":"c"}, {"literal":"t"}, {"literal":"i"}, {"literal":"o"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},

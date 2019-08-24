@@ -2,5 +2,5 @@
 
 service _λάμ_β_δα23
 
-import _oter
-import _doga3
+import io.maana.core as core
+import maana-ai-goap as goap

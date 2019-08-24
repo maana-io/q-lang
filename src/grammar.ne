@@ -29,12 +29,16 @@ definition
   |  function {% id %}
 
 service
-  -> "service" __ name
+  -> "service" __ service_name
     {% (data) => ({ service: data[2] }) %}
 
 import
-  -> "import" __ name
-    {% (data) => ({ import: data[2] }) %}
+  -> "import" __ service_name as:?
+    {% (data) => ({ import: data[2], as: data[3] }) %}
+
+as
+  -> __ "as" __ name
+    {% (data) => data[3] %}
 
 type
   -> "type"

@@ -28,6 +28,7 @@ const main = async () => {
   // Parse (i.e., generate an AST)
   const ast = await parser.parse(input)[0]
   console.log('ast', ast)
+
   // Persist the AST
   await fs.writeFile(astFilename, JSON.stringify(ast))
 

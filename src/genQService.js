@@ -168,7 +168,7 @@ const generate = ast => {
   }
 
   for (let statement of ast) {
-    console.log('st', statement)
+    console.log('stmt:', statement)
     if (!statement) continue
     if (statement.type === 'service') {
       service.id = statement.id
@@ -181,7 +181,6 @@ const generate = ast => {
       console.log('unhandled statement:', statement)
     }
   }
-  console.log('s', service)
   const lines = []
   lines.push(`mutation {`)
   lines.push(`  addLogicService(input: {`)

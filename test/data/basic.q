@@ -1,2 +1,5 @@
+
 service basic
+
 type foo
+

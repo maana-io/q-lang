@@ -24,15 +24,21 @@ let lexer = moo.compile({
 
 input
   -> _ head _ body _ {% d => {
-    console.log('d', d)
+    console.log('input:', d)
     return d
-  }%}
+  }  %}
 
 head
-  -> service {% d => d[0] %}
+  -> service {% d => {
+    console.log('head:', d)
+    return d[0]
+  } %}
 
 body
-  -> type {% d => d[0] %}
+  -> type {% d => {
+    console.log('body:', d)
+    return d[0]
+  } %}
 
 service 
   -> "service" _ identifier

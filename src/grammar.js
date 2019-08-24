@@ -17,11 +17,17 @@ var grammar = {
     Lexer: lexer,
     ParserRules: [
     {"name": "input", "symbols": ["_", "head", "_", "body", "_"], "postprocess":  d => {
-          console.log('d', d)
+          console.log('input:', d)
           return d
-        }},
-    {"name": "head", "symbols": ["service"], "postprocess": d => d[0]},
-    {"name": "body", "symbols": ["type"], "postprocess": d => d[0]},
+        }  },
+    {"name": "head", "symbols": ["service"], "postprocess":  d => {
+          console.log('head:', d)
+          return d[0]
+        } },
+    {"name": "body", "symbols": ["type"], "postprocess":  d => {
+          console.log('body:', d)
+          return d[0]
+        } },
     {"name": "service", "symbols": [{"literal":"service"}, "_", "identifier"], "postprocess":  d => 
         ({
           type: "service",

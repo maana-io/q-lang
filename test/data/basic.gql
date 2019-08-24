@@ -1,8 +1,7 @@
 mutation {
   addLogicService(input: {
-    id: "basic"
+    id: "undefined"
     addTypes: [
-      name: "foo"
     ]
   }
 }

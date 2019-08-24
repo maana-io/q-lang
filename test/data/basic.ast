@@ -1,1 +1,13 @@
-[null,{"type":"service","id":"basic"},null,{"type":"type","name":"foo"},null]
+[
+  {
+    "service": "_λάμ_β_δα23",
+    "imports": [
+      {
+        "import": "_oter"
+      },
+      {
+        "import": "_doga3"
+      }
+    ]
+  }
+]

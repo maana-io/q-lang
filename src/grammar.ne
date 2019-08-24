@@ -1,69 +1,105 @@
 #
-# Lexer
-# =====
+# Maana Q Language Grammar
 #
 
-@{%
-const moo = require('moo')
+@builtin "number.ne"
+@builtin "string.ne"
+@builtin "whitespace.ne"
 
-let lexer = moo.compile({
-  space:      {match: /\s+/, lineBreaks: true},
-  identifier: /[a-zA-Z][a-zA-Z0-9_\-.\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+/,
-  number:     /-?(?:[0-9]|[1-9][0-9]+)(?:\.[0-9]+)?(?:[eE][-+]?[0-9]+)?\b/,
-  string:     /"(?:\\["bfnrt\/\\]|\\u[a-fA-F0-9]{4}|[^"\\])*"/,
-  service:    "service",
-  type:       "type"
-})
-%}
+input -> __ preamble __
+  # -> preamble definition:*
+    {% (data) => { 
+      //console.log("data", JSON.stringify(data))
+      const res = ({ ...data[0], ...data[1] })
+      //console.log("\n\nres", res)
+      return res
+    }%}
 
-#
-# Grammar
-# =======
-#
-@lexer lexer
+preamble
+  -> service _ imports
+    {% (data) => ({ ...data[0], imports: data[2] }) %}
 
-input
-  -> _ head _ body _ {% d => {
-    console.log('input:', d)
-    return d
-  }  %}
+imports
+  -> import {% id %}
+  |  import _ imports
+    {% (data) => ([ data[0], data[2] ]) %}
 
-head
-  -> service {% d => {
-    console.log('head:', d)
-    return d[0]
-  } %}
+definition
+  -> type {% id %}
+  |  function {% id %}
 
-body
-  -> type {% d => {
-    console.log('body:', d)
-    return d[0]
-  } %}
+service
+  -> "service" __ name
+    {% (data) => ({ service: data[2] }) %}
 
-service 
-  -> "service" _ identifier
-    {% d => 
-      ({
-        type: "service",
-        id: d[2]
-      })
-    %}
+import
+  -> "import" __ name
+    {% (data) => ({ import: data[2] }) %}
 
 type
-  -> "type" _ identifier
-    {% d => 
-      ({
-        type: "type",
-        name: d[2]
-      })
-    %}
+  -> "type"
 
-identifier
-  -> %identifier
-    {% d => d[0].value %}
+function
+  -> "function"
 
-number -> %number {% (d) => parseFloat(d[0].value) %}
+# A 'name' is like a string without the quotes, although some rules apply:
+# - a name can't begin with a number
+# - a name can't contain escape sequences
+# - 'alpha' is defined as the extended character set + '_'
+name 
+  -> alpha alpha_num:*
+    {% (data) => data[0] + data[1].join("") %}
+alpha -> [a-zA-Z_\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF] {% id %}
+alpha_num -> [a-zA-Z_0-9\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF] {% id %}
 
-string -> %string {% (d) => JSON.parse(d[0].value) %}
+# A 'service name' is like a 'name' (see above) except for:
+# - can include '.' and '-' characters (but not as the first character)
+service_name 
+  -> alpha service_alpha_num:*
+    {% (data) => data[0] + data[1].join("") %}
+service_alpha_num -> [a-zA-Z_\-.0-9\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF] {% id %}
 
-_ -> null | %space {% () => null %}
+#   -> _ head _ body _ {% d => {
+#     console.log('input:', d)
+#     return d
+#   }  %}
+
+# head
+#   -> service {% d => {
+#     console.log('head:', d)
+#     return d[0]
+#   } %}
+
+# body
+#   -> type {% d => {
+#     console.log('body:', d)
+#     return d[0]
+#   } %}
+
+# service 
+#   -> "service" _ identifier
+#     {% d => 
+#       ({
+#         type: "service",
+#         id: d[2]
+#       })
+#     %}
+
+# type
+#   -> "type" _ identifier
+#     {% d => 
+#       ({
+#         type: "type",
+#         name: d[2]
+#       })
+#     %}
+
+# identifier
+#   -> %identifier
+#     {% d => d[0].value %}
+
+# number -> %number {% (d) => parseFloat(d[0].value) %}
+
+# string -> %string {% (d) => JSON.parse(d[0].value) %}
+
+# _ -> null | %space {% () => null %}

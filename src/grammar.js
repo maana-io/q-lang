@@ -123,25 +123,49 @@ var grammar = {
     {"name": "__$ebnf$1", "symbols": ["__$ebnf$1", "wschar"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "__", "symbols": ["__$ebnf$1"], "postprocess": function(d) {return null;}},
     {"name": "wschar", "symbols": [/[ \t\n\v\f]/], "postprocess": id},
-    {"name": "input", "symbols": ["__", "preamble", "__"], "postprocess":  (data) => { 
-          //console.log("data", JSON.stringify(data))
-          const res = ({ ...data[0], ...data[1] })
-          //console.log("\n\nres", res)
-          return res
-        }},
-    {"name": "preamble", "symbols": ["service", "_", "imports"], "postprocess": (data) => ({ ...data[0], imports: data[2] })},
-    {"name": "imports", "symbols": ["import"], "postprocess": id},
-    {"name": "imports", "symbols": ["import", "_", "imports"], "postprocess": (data) => ([ data[0], data[2] ])},
+    {"name": "input$ebnf$1", "symbols": ["foos"]},
+    {"name": "input$ebnf$1", "symbols": ["input$ebnf$1", "foos"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "input", "symbols": ["input$ebnf$1"], "postprocess":  (data) => {
+        console.log('inp -> ', data)
+        return data[0] 
+        } },
+    {"name": "foos$ebnf$1", "symbols": [/[a-z]/]},
+    {"name": "foos$ebnf$1", "symbols": ["foos$ebnf$1", /[a-z]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "foos", "symbols": ["foos$ebnf$1", "_"], "postprocess": id},
+    {"name": "preamble$ebnf$1", "symbols": []},
+    {"name": "preamble$ebnf$1", "symbols": ["preamble$ebnf$1", "import"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "preamble", "symbols": ["service", "_", "preamble$ebnf$1"], "postprocess":  (data) => {
+         console.log("preamble ->", data)
+         const res = ({ ...data[0], imports: data[2] })
+         return res
+        } },
     {"name": "definition", "symbols": ["type"], "postprocess": id},
     {"name": "definition", "symbols": ["function"], "postprocess": id},
     {"name": "service$string$1", "symbols": [{"literal":"s"}, {"literal":"e"}, {"literal":"r"}, {"literal":"v"}, {"literal":"i"}, {"literal":"c"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "service", "symbols": ["service$string$1", "__", "service_name"], "postprocess": (data) => ({ service: data[2] })},
     {"name": "import$string$1", "symbols": [{"literal":"i"}, {"literal":"m"}, {"literal":"p"}, {"literal":"o"}, {"literal":"r"}, {"literal":"t"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "import$ebnf$1", "symbols": ["as"], "postprocess": id},
+    {"name": "import$ebnf$1", "symbols": ["import_as"], "postprocess": id},
     {"name": "import$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "import", "symbols": ["import$string$1", "__", "service_name", "import$ebnf$1"], "postprocess": (data) => ({ import: data[2], as: data[3] })},
-    {"name": "as$string$1", "symbols": [{"literal":"a"}, {"literal":"s"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "as", "symbols": ["__", "as$string$1", "__", "name"], "postprocess": (data) => data[3]},
+    {"name": "import", "symbols": ["import$string$1", "__", "import_name", "import$ebnf$1", "_", "import_selector_block", "__"], "postprocess":  (data) => {
+         console.log('import -> ', data)
+         const res = ({ service: data[2], as: data[3], selectors: data[5] })
+         return res
+        } },
+    {"name": "import_name", "symbols": ["service_name"], "postprocess": id},
+    {"name": "import_as$string$1", "symbols": [{"literal":"a"}, {"literal":"s"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "import_as", "symbols": ["__", "import_as$string$1", "__", "name"], "postprocess": (data) => data[3]},
+    {"name": "import_selector_block$ebnf$1", "symbols": ["import_selector"]},
+    {"name": "import_selector_block$ebnf$1", "symbols": ["import_selector_block$ebnf$1", "import_selector"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "import_selector_block", "symbols": [{"literal":"{"}, "_", "import_selector_block$ebnf$1", {"literal":"}"}], "postprocess":  (data) => {
+          console.log('isb -> ', data)
+          return data[1] 
+        } },
+    {"name": "import_selector$ebnf$1", "symbols": ["name"]},
+    {"name": "import_selector$ebnf$1", "symbols": ["import_selector$ebnf$1", "name"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "import_selector", "symbols": ["import_selector$ebnf$1", "_"], "postprocess":  (data) => {
+          console.log('is -> ', data)
+          return data[0].join("")
+        } },
     {"name": "type$string$1", "symbols": [{"literal":"t"}, {"literal":"y"}, {"literal":"p"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "type", "symbols": ["type$string$1"]},
     {"name": "function$string$1", "symbols": [{"literal":"f"}, {"literal":"u"}, {"literal":"n"}, {"literal":"c"}, {"literal":"t"}, {"literal":"i"}, {"literal":"o"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},

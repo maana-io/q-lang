@@ -6,45 +6,106 @@
 @builtin "string.ne"
 @builtin "whitespace.ne"
 
-input -> __ preamble __
+#
+# Root document
+#
+input -> foos:+ {% (data) => {
+  console.log('inp -> ', data)
+  return data[0] 
+  } %}
+# input -> import_selector_block
+
+foos
+  -> [a-z]:+ _ {% id %}
+  # -> name {% id %}
+  # |  name __ foos
+  #   {% (data) => {
+  #     console.log('foos->', data)
+  #     return Array.isArray(data[2]) ? 
+  #       [data[0], ...data[2]] :
+  #       [data[0], data[2]]
+  #   } %}
+  # -> __ preamble __
   # -> preamble definition:*
-    {% (data) => { 
-      //console.log("data", JSON.stringify(data))
-      const res = ({ ...data[0], ...data[1] })
-      //console.log("\n\nres", res)
-      return res
-    }%}
+    # {% (data) => { 
+      # console.log("input ->", JSON.stringify(data))
+      # const res = ({ ...data[0], ...data[1]] })
+      # //console.log("\n\nres", res)
+      # return res
+    # }%}
 
+#
+# Head portion of the document
+#
 preamble
-  -> service _ imports
-    {% (data) => ({ ...data[0], imports: data[2] }) %}
+  -> service _ import:*
+    {% (data) => {
+      console.log("preamble ->", data)
+      const res = ({ ...data[0], imports: data[2] })
+      return res
+     } %}
 
-imports
-  -> import {% id %}
-  |  import _ imports
-    {% (data) => ([ data[0], data[2] ]) %}
-
+#
+# Body portion of the document
+#
 definition
   -> type {% id %}
   |  function {% id %}
 
+#
+# Service declaration
+#
 service
   -> "service" __ service_name
     {% (data) => ({ service: data[2] }) %}
 
+#
+# Imports
+#
 import
-  -> "import" __ service_name as:?
-    {% (data) => ({ import: data[2], as: data[3] }) %}
+  -> "import" __ import_name import_as:? _ import_selector_block __
+    {% (data) => {
+      console.log('import -> ', data)
+      const res = ({ service: data[2], as: data[3], selectors: data[5] })
+      return res
+     } %}
 
-as
+import_name 
+  -> service_name {% id %}
+
+import_as
   -> __ "as" __ name
     {% (data) => data[3] %}
 
+import_selector_block
+  -> "{" _ import_selector:+ "}"
+    {% (data) => {
+      console.log('isb -> ', data)
+      return data[1] 
+    } %}
+
+import_selector 
+  -> name:+ _ 
+    {% (data) => {
+      console.log('is -> ', data)
+      return data[0].join("")
+    } %}
+
+#
+# Types
+#
 type
   -> "type"
 
+#
+# Functions
+#
 function
   -> "function"
+
+#
+# Lexer rules
+#
 
 # A 'name' is like a string without the quotes, although some rules apply:
 # - a name can't begin with a number
@@ -62,48 +123,3 @@ service_name
   -> alpha service_alpha_num:*
     {% (data) => data[0] + data[1].join("") %}
 service_alpha_num -> [a-zA-Z_\-.0-9\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF] {% id %}
-
-#   -> _ head _ body _ {% d => {
-#     console.log('input:', d)
-#     return d
-#   }  %}
-
-# head
-#   -> service {% d => {
-#     console.log('head:', d)
-#     return d[0]
-#   } %}
-
-# body
-#   -> type {% d => {
-#     console.log('body:', d)
-#     return d[0]
-#   } %}
-
-# service 
-#   -> "service" _ identifier
-#     {% d => 
-#       ({
-#         type: "service",
-#         id: d[2]
-#       })
-#     %}
-
-# type
-#   -> "type" _ identifier
-#     {% d => 
-#       ({
-#         type: "type",
-#         name: d[2]
-#       })
-#     %}
-
-# identifier
-#   -> %identifier
-#     {% d => d[0].value %}
-
-# number -> %number {% (d) => parseFloat(d[0].value) %}
-
-# string -> %string {% (d) => JSON.parse(d[0].value) %}
-
-# _ -> null | %space {% () => null %}

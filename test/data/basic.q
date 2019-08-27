@@ -1,10 +1,13 @@
-service foo
+service maana-parser-test
 
-import foo as bar {
+import io.maana.core as core {
   head
   tail
 }
-import foo as bar {
-  head
-  tail
+
+import 24aa07c4-6b98-4fa5-b1b3-33a3e44a20b5 as math {
+  min
+  max
+  abs
+  exp
 }

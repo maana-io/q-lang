@@ -7,11 +7,12 @@
 @include "whitespace.ne"
 
 # Root document
-input -> service __ imports:? {% (data) => {
-  console.log('input ->', data)
-  //return data[0]
-  return ({ service: data[0], imports: data[2] })
-  } %}
+input
+  -> preamble
+    {% (data) => {
+      console.log('input ->', data)
+      return data[0]
+    } %}
 
 # services can contain '.', which is also the function application symbol
 apply
@@ -37,11 +38,10 @@ items
 # Head portion of the document
 #
 preamble
-  -> service _ import:*
+  -> service __ imports:?
     {% (data) => {
       console.log("preamble ->", data)
-      const res = ({ ...data[0], imports: data[2] })
-      return res
+      return ({ ...data[0], imports: data[2] })
      } %}
 
 #

@@ -95,20 +95,18 @@ var grammar = {
     {"name": "__$ebnf$1", "symbols": ["__$ebnf$1", "wschar"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "__", "symbols": ["__$ebnf$1"], "postprocess": () => null},
     {"name": "wschar", "symbols": [/[ \t\r\n\v\f]/], "postprocess": id},
-    {"name": "input", "symbols": ["imports"], "postprocess":  (data) => {
-        console.log('input ->', data)
-        //return data[0]
-        return ({ imports: data[0] })
+    {"name": "input", "symbols": ["preamble"], "postprocess":  (data) => {
+          console.log('input ->', data)
+          return data[0]
         } },
     {"name": "apply", "symbols": ["service_identifier", {"literal":"."}, "identifier"]},
     {"name": "items", "symbols": ["import_selector_block"], "postprocess": (data) => [data[0]]},
     {"name": "items", "symbols": ["import_selector_block", "__", "items"], "postprocess": (data) => [data[0], ...data[2]]},
-    {"name": "preamble$ebnf$1", "symbols": []},
-    {"name": "preamble$ebnf$1", "symbols": ["preamble$ebnf$1", "import"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "preamble", "symbols": ["service", "_", "preamble$ebnf$1"], "postprocess":  (data) => {
+    {"name": "preamble$ebnf$1", "symbols": ["imports"], "postprocess": id},
+    {"name": "preamble$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "preamble", "symbols": ["service", "__", "preamble$ebnf$1"], "postprocess":  (data) => {
          console.log("preamble ->", data)
-         const res = ({ ...data[0], imports: data[2] })
-         return res
+         return ({ ...data[0], imports: data[2] })
         } },
     {"name": "definition", "symbols": ["type"], "postprocess": id},
     {"name": "definition", "symbols": ["function"], "postprocess": id},

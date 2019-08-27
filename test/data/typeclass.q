@@ -13,7 +13,7 @@ interface Equal<A> {
 type Person implements Equal<Person> {
   age: Int! @id
   name: String! @id
-  eq(other: Person): Boolean! @function(implementation:"JavaScript")
+  eq(other: Foo): Boolean! @function(implementation:"JavaScript")
   {
     return !other ? false : age === other.age && name === other.name
   }
@@ -32,4 +32,11 @@ function elementOf<A => Equal<A>>(element: A, list: [A!]): Boolean! @function(im
   }
 
   core.or(a: isHeadEqual, b: isElementOfTail)
+}
+
+
+function test: Boolean! @function(implementaiton="Q") {
+#  let people: List[Person] = [...]
+#  let bob: Person = ...
+#  let isInList = elementOf(element: bob, list: people)
 }

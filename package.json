@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "gen-parser": "nearleyc src/grammar.ne -o src/grammar.js",
+    "gen-parser": "nearleyc src/grammar/qlang.ne -o src/qlangGrammar.js",
     "serve": "NODE_ENV=PRODUCTION node src/index.js",
     "start": "node src/index.js"
   },

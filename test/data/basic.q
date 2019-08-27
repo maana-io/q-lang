@@ -1,3 +1,5 @@
+service foo
+
 import foo as bar {
   head
   tail

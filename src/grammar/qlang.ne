@@ -7,10 +7,10 @@
 @include "whitespace.ne"
 
 # Root document
-input -> imports {% (data) => {
+input -> service __ imports:? {% (data) => {
   console.log('input ->', data)
   //return data[0]
-  return ({ imports: data[0] })
+  return ({ service: data[0], imports: data[2] })
   } %}
 
 # services can contain '.', which is also the function application symbol

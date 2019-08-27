@@ -1,5 +1,5 @@
-const fs = require("mz/fs")
-const path = require("path")
+const fs = require("mz/fs");
+const path = require("path");
 
 /*
 addLogicService(input: {
@@ -161,40 +161,38 @@ fragment Val on Value {
 */
 
 const generate = ast => {
-
   const service = {
     types: [],
     functions: []
-  }
+  };
 
   for (let statement of ast) {
-    console.log('stmt:', statement)
-    if (!statement) continue
-    if (statement.type === 'service') {
-      service.id = statement.id
-    } else if (statement.type === 'type') {
+    console.log("stmt:", statement);
+    if (!statement) continue;
+    if (statement.type === "service") {
+      service.id = statement.id;
+    } else if (statement.type === "type") {
       service.types.push({
         name: statement.name
-      })
-    }
-    else {
-      console.log('unhandled statement:', statement)
+      });
+    } else {
+      console.log("unhandled statement:", statement);
     }
   }
-  const lines = []
-  lines.push(`mutation {`)
-  lines.push(`  addLogicService(input: {`)
-  lines.push(`    id: \"${service.id}\"`)
-  lines.push(`    addTypes: [`)
+  const lines = [];
+  lines.push(`mutation {`);
+  lines.push(`  addLogicService(input: {`);
+  lines.push(`    id: \"${service.id}\"`);
+  lines.push(`    addTypes: [`);
   for (let typ of service.types) {
-    lines.push(`      name: \"${typ.name}\"`)
+    lines.push(`      name: \"${typ.name}\"`);
   }
-  lines.push(`    ]`)
-  lines.push(`  }`)
-  lines.push(`}`)
-  return lines.join("\n")
-}
+  lines.push(`    ]`);
+  lines.push(`  }`);
+  lines.push(`}`);
+  return lines.join("\n");
+};
 
 module.exports = {
   generate
-}
+};

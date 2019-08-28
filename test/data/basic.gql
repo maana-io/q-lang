@@ -1,9 +1,77 @@
 mutation {
   addLogicService(input: {
     id: "maana-parser-test"
+    name: "maana-parser-test"
+    description: "maana-parser-test"
     addTypes: [
-      name: "Person"
-      name: "Vessel"
+      {
+        name: "Person"
+        signature: {
+          signatureType: PRODUCT
+          product: {
+            fields: [
+              {
+                name: "name"
+                type: {
+expressionType: TYPE
+detail: {"required":{"id":"String"}}
+                }
+              }
+              {
+                name: "dob"
+                type: {
+expressionType: TYPE
+detail: {"id":"Date"}
+                }
+              }
+              {
+                name: "children"
+                type: {
+expressionType: TYPE
+detail: {"required":{"arrayOf":{"required":{"id":"Person"}}}}
+                }
+              }
+              {
+                name: "nop"
+                type: {
+expressionType: TYPE
+detail: {"id":"Unit"}
+                }
+              }
+              {
+                name: "eq"
+                type: {
+expressionType: TYPE
+detail: {"required":{"id":"Boolean"}}
+                }
+              }
+            ]
+          }
+        }
+      }
+      {
+        name: "Vessel"
+        signature: {
+          signatureType: PRODUCT
+          product: {
+            fields: [
+              {
+                name: "id"
+                type: {
+expressionType: TYPE
+detail: {"id":"ID"}
+                }
+              }
+            ]
+          }
+        }
+      }
     ]
-  }
+    addFunctions: [
+      {
+        name: "baz"
+      }
+    ]
+  })
+  { id }
 }

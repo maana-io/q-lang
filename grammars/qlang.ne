@@ -32,7 +32,7 @@ definition
 # Service declaration
 #
 service
-  -> "service" __ service_identifier {% d => ({ service: d[2] }) %}
+  -> "service" __ service_identifier {% d => ({ service: { id: d[2], name: d[2], description: d[2] }}) %}
 
 #
 # Imports
@@ -75,18 +75,18 @@ type_definition
   -> "type" __ identifier _ implements_interface:? _ field_block
     {% d => ({ type: { name: d[2], implements: d[4], fields: d[6] }}) %}
 
+implements_interface
+  -> "implements" __ type_ref              {% d => [d[2]] %}
+  |  implements_interface _ "&" _ type_ref {% d => [...d[0], d[4]] %}
+
+type_ref
+  -> identifier {% id %}
+
 # GraphQL-style type (e.g., [Person!]!)
 type
-  -> identifier       {% d => ({ id: d[0] }) %}       # standalone type
+  -> type_ref         {% d => ({ id: d[0] }) %}       # standalone type
   |  type "!"         {% d => ({ required: d[0] }) %} # non-null wrapper
   |  "[" _ type _ "]" {% d => ({ arrayOf: d[2] }) %}  # collection wrapper
-
-implements_interface
-  -> "implements" __ interface_ref              {% d => [d[2]] %}
-  |  implements_interface _ "&" _ interface_ref {% d => [...d[0], d[4]] %}
-
-interface_ref
-  -> identifier {% id %}
 
 #
 # Functions

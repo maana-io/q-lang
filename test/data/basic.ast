@@ -1,5 +1,9 @@
 {
-  "service": "maana-parser-test",
+  "service": {
+    "id": "maana-parser-test",
+    "name": "maana-parser-test",
+    "description": "maana-parser-test"
+  },
   "imports": [
     {
       "service": "io.maana.core",

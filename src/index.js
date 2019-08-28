@@ -32,7 +32,8 @@ const main = async () => {
   const input = (await fs.readFile(inputFilename)).toString();
 
   // Parse (i.e., generate an AST)
-  const ast = await parser.parse(input);
+  const parseResults = await parser.parse(input);
+  const ast = parseResults[0];
   console.log("ast", ast);
 
   // Persist the AST

@@ -1,7 +1,9 @@
 mutation {
   addLogicService(input: {
-    id: "undefined"
+    id: "maana-parser-test"
     addTypes: [
+      name: "Person"
+      name: "Vessel"
     ]
   }
 }

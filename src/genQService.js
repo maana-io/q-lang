@@ -161,31 +161,13 @@ fragment Val on Value {
 */
 
 const generate = ast => {
-  const service = {
-    types: [],
-    functions: []
-  };
-
-  for (let statement of ast) {
-    console.log("stmt:", statement);
-    if (!statement) continue;
-    if (statement.type === "service") {
-      service.id = statement.id;
-    } else if (statement.type === "type") {
-      service.types.push({
-        name: statement.name
-      });
-    } else {
-      console.log("unhandled statement:", statement);
-    }
-  }
   const lines = [];
   lines.push(`mutation {`);
   lines.push(`  addLogicService(input: {`);
-  lines.push(`    id: \"${service.id}\"`);
+  lines.push(`    id: "${ast.service}"`);
   lines.push(`    addTypes: [`);
-  for (let typ of service.types) {
-    lines.push(`      name: \"${typ.name}\"`);
+  for (const def of ast.definitions.filter(x => x["type"] !== undefined)) {
+    lines.push(`      name: "${def.type.name}"`);
   }
   lines.push(`    ]`);
   lines.push(`  }`);

@@ -9,13 +9,10 @@
 # Root document
 input
   -> _ preamble __ definitions _
-    {% (data) => {
-      console.log('input ->', data)
-      return ({
-        ...data[1],
-        definitions: data[3]
-      })
-    } %}
+    {% d => ({
+        ...d[1],
+        definitions: d[3]
+    }) %}
 
 # services can contain '.', which is also the function application symbol
 apply
@@ -27,84 +24,98 @@ apply
 #
 preamble
   -> service __ imports:?
-    {% (data) => {
-      console.log("preamble ->", data)
-      return ({ ...data[0], imports: data[2] })
-     } %}
+    {% d => ({ ...d[0], imports: d[2] }) %}
 
 #
 # Body portion of the document
 #
 definitions
-  -> definition {% (data) => [data[0]] %}
-  |  definition __ definitions {% (data) => [data[0], ...data[2]] %}
+  -> definition {% d => [d[0]] %}
+  |  definition __ definitions {% d => [d[0], ...d[2]] %}
 
 definition
-  -> type {% id %}
-  |  function {% id %}
+  -> function {% id %}
+  |  interface {% id %}
+  |  type {% id %}
 
 #
 # Service declaration
 #
 service
   -> "service" __ service_identifier
-    {% (data) => ({ service: data[2] }) %}
+    {% d => ({ service: d[2] }) %}
 
 #
 # Imports
 #
 imports
-  -> import {% (data) => [data[0]] %}
-  |  import __ imports {% (data) => [data[0], ...data[2]] %}
+  -> import {% d => [d[0]] %}
+  |  import __ imports {% d => [d[0], ...d[2]] %}
 
 import
   -> "import" __ import_identifier import_as:? __ import_selector_block
-    {% (data) => {
-      console.log('imp2 ->', data);
-      return ({
-        service: data[2],
-        alias: data[3],
-        import: data[5]
-      })
-    }%}
+    {% d => ({
+        service: d[2],
+        alias: d[3],
+        import: d[5]
+    }) %}
 
 import_identifier 
   -> service_identifier {% id %}
 
 import_as
   -> __ "as" __ identifier
-    {% (data) => data[3] %}
+    {% d => d[3] %}
 
 import_selector_block
   -> "{" _ import_selectors _ "}"
-    {% (data) => data[2] %}
+    {% d => d[2] %}
 
 import_selectors
-  -> import_selector {% (data) => [data[0]] %}
-  |  import_selector __ import_selectors {% (data) => [data[0], ...data[2]] %}
+  -> import_selector {% d => [d[0]] %}
+  |  import_selector __ import_selectors {% d => [d[0], ...d[2]] %}
 
 import_selector
   -> identifier {% id %}
 
 #
+# Interfaces
+#
+interface
+  -> "interface" __ identifier
+    {% d => ({
+      interface: {
+        name: d[2]
+      }
+    }) %}
+
+#
 # Types
 #
 type
-  -> "type" __ identifier
-    {% (data) => ({
+  -> "type" __ identifier _ "{" _ type_fields _ "}"
+    {% d => ({
       type: {
-        name: data[2]
+        name: d[2]
       }
     }) %}
+
+type_fields
+  -> type_field {% d => [d[0]] %}
+  |  type_field __ type_fields {% d => [d[0], ...d[2]] %}
+
+type_field
+  -> identifier _ ":" _ identifier
+    {% d => ({ field: { name: d[0], type_sig: d[4] }}) %}
 
 #
 # Functions
 #
 function
   -> "function" __ identifier
-    {% (data) => ({
+    {% d => ({
       function: {
-        name: data[2]
+        name: d[2]
       }
     }) %}
 

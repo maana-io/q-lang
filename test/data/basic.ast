@@ -1,47 +1,45 @@
-[
-  {
-    "service": "maana-parser-test",
-    "imports": [
-      {
-        "service": "io.maana.core",
-        "alias": "core",
-        "import": [
-          "head",
-          "tail"
-        ]
-      },
-      {
-        "service": "24aa07c4-6b98-4fa5-b1b3-33a3e44a20b5",
-        "alias": "math",
-        "import": [
-          "min",
-          "max",
-          "abs",
-          "exp"
-        ]
+{
+  "service": "maana-parser-test",
+  "imports": [
+    {
+      "service": "io.maana.core",
+      "alias": "core",
+      "import": [
+        "head",
+        "tail"
+      ]
+    },
+    {
+      "service": "24aa07c4-6b98-4fa5-b1b3-33a3e44a20b5",
+      "alias": "math",
+      "import": [
+        "min",
+        "max",
+        "abs",
+        "exp"
+      ]
+    }
+  ],
+  "definitions": [
+    {
+      "interface": {
+        "name": "Equals"
       }
-    ],
-    "definitions": [
-      {
-        "type": {
-          "name": "foo"
-        }
-      },
-      {
-        "function": {
-          "name": "qux"
-        }
-      },
-      {
-        "type": {
-          "name": "bar"
-        }
-      },
-      {
-        "function": {
-          "name": "baz"
-        }
+    },
+    {
+      "type": {
+        "name": "Person"
       }
-    ]
-  }
-]
+    },
+    {
+      "type": {
+        "name": "Vessel"
+      }
+    },
+    {
+      "function": {
+        "name": "baz"
+      }
+    }
+  ]
+}

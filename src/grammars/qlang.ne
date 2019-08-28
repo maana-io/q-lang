@@ -30,13 +30,13 @@ preamble
 # Body portion of the document
 #
 definitions
-  -> definition {% d => [d[0]] %}
-  |  definition __ definitions {% d => [d[0], ...d[2]] %}
+  -> definition                 {% d => [d[0]] %}
+  |  definition __ definitions  {% d => [d[0], ...d[2]] %}
 
 definition
-  -> function {% id %}
-  |  interface {% id %}
-  |  type {% id %}
+  -> function   {% id %}
+  |  interface  {% id %}
+  |  type       {% id %}
 
 #
 # Service declaration
@@ -49,8 +49,8 @@ service
 # Imports
 #
 imports
-  -> import {% d => [d[0]] %}
-  |  import __ imports {% d => [d[0], ...d[2]] %}
+  -> import             {% d => [d[0]] %}
+  |  import __ imports  {% d => [d[0], ...d[2]] %}
 
 import
   -> "import" __ import_identifier import_as:? __ import_selector_block
@@ -72,8 +72,8 @@ import_selector_block
     {% d => d[2] %}
 
 import_selectors
-  -> import_selector {% d => [d[0]] %}
-  |  import_selector __ import_selectors {% d => [d[0], ...d[2]] %}
+  -> import_selector                      {% d => [d[0]] %}
+  |  import_selector __ import_selectors  {% d => [d[0], ...d[2]] %}
 
 import_selector
   -> identifier {% id %}
@@ -96,17 +96,26 @@ type
   -> "type" __ identifier _ "{" _ type_fields _ "}"
     {% d => ({
       type: {
-        name: d[2]
+        name: d[2],
+        fields: d[6]
       }
     }) %}
 
 type_fields
-  -> type_field {% d => [d[0]] %}
-  |  type_field __ type_fields {% d => [d[0], ...d[2]] %}
+  -> type_field                 {% d => [d[0]] %}
+  |  type_field __ type_fields  {% d => [d[0], ...d[2]] %}
 
 type_field
-  -> identifier _ ":" _ identifier
-    {% d => ({ field: { name: d[0], type_sig: d[4] }}) %}
+  -> identifier _ ":" _ type_field_type
+    {% d => ({ name: d[0], type_sig: d[4] }) %}
+
+type_field_type
+  -> identifier
+    {% d => ({ type: d[0] }) %}
+  | type_field_type "!"
+    {% d => ({ required: d[0] }) %}
+  |  "[" _ type_field_type _ "]"
+    {% d => ({ arrayOf: d[2] }) %}
 
 #
 # Functions

@@ -136,12 +136,16 @@ var grammar = {
     {"name": "type$string$1", "symbols": [{"literal":"t"}, {"literal":"y"}, {"literal":"p"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "type", "symbols": ["type$string$1", "__", "identifier", "_", {"literal":"{"}, "_", "type_fields", "_", {"literal":"}"}], "postprocess":  d => ({
           type: {
-            name: d[2]
+            name: d[2],
+            fields: d[6]
           }
         }) },
     {"name": "type_fields", "symbols": ["type_field"], "postprocess": d => [d[0]]},
     {"name": "type_fields", "symbols": ["type_field", "__", "type_fields"], "postprocess": d => [d[0], ...d[2]]},
-    {"name": "type_field", "symbols": ["identifier", "_", {"literal":":"}, "_", "identifier"], "postprocess": d => ({ field: { name: d[0], type_sig: d[4] }})},
+    {"name": "type_field", "symbols": ["identifier", "_", {"literal":":"}, "_", "type_field_type"], "postprocess": d => ({ name: d[0], type_sig: d[4] })},
+    {"name": "type_field_type", "symbols": ["identifier"], "postprocess": d => ({ type: d[0] })},
+    {"name": "type_field_type", "symbols": ["type_field_type", {"literal":"!"}], "postprocess": d => ({ required: d[0] })},
+    {"name": "type_field_type", "symbols": [{"literal":"["}, "_", "type_field_type", "_", {"literal":"]"}], "postprocess": d => ({ arrayOf: d[2] })},
     {"name": "function$string$1", "symbols": [{"literal":"f"}, {"literal":"u"}, {"literal":"n"}, {"literal":"c"}, {"literal":"t"}, {"literal":"i"}, {"literal":"o"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "function", "symbols": ["function$string$1", "__", "identifier"], "postprocess":  d => ({
           function: {

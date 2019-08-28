@@ -39,7 +39,8 @@
               "required": {
                 "id": "Boolean"
               }
-            }
+            },
+            "impl": null
           }
         ]
       }
@@ -60,14 +61,16 @@
               "required": {
                 "id": "String"
               }
-            }
+            },
+            "impl": null
           },
           {
             "name": "dob",
             "args": null,
             "type": {
               "id": "Date"
-            }
+            },
+            "impl": null
           },
           {
             "name": "children",
@@ -80,7 +83,16 @@
                   }
                 }
               }
-            }
+            },
+            "impl": null
+          },
+          {
+            "name": "nop",
+            "args": null,
+            "type": {
+              "id": "Unit"
+            },
+            "impl": null
           },
           {
             "name": "eq",
@@ -96,7 +108,8 @@
               "required": {
                 "id": "Boolean"
               }
-            }
+            },
+            "impl": "hi"
           }
         ]
       }
@@ -111,7 +124,8 @@
             "args": null,
             "type": {
               "id": "ID"
-            }
+            },
+            "impl": null
           }
         ]
       }

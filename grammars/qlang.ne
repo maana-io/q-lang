@@ -116,8 +116,8 @@ field_definitions
   |  field_definition __ field_definitions  {% d => [d[0], ...d[2]] %}
 
 field_definition
-  -> identifier _ argument_block:? _ ":" _ type
-    {% d => ({ name: d[0], args: d[2], type: d[6] }) %}
+  -> identifier _ argument_block:? _ ":" _ type _ function_implementation_block:?
+    {% d => ({ name: d[0], args: d[2], type: d[6], impl: d[8] }) %}
 
 #
 # Arguments

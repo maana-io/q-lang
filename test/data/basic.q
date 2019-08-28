@@ -21,7 +21,9 @@ type Person implements Equals & Numeric & Show {
   dob: Date
   children: [Person!]!
   nop(): Unit
-  eq(other: Person): Boolean!
+  eq(other: Person): Boolean! {
+    hi
+  }
 }
 
 type Vessel {

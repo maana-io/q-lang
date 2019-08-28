@@ -102,7 +102,7 @@ function_implementation
   -> "hi" {% id %}
   
 # services can contain '.', which is also the function application symbol
-function_apply
+function_application
   -> service_identifier "." identifier
 
 #

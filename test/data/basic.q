@@ -20,6 +20,7 @@ type Person implements Equals & Numeric & Show {
   name: String!
   dob: Date
   children: [Person!]!
+  nop(): Unit
   eq(other: Person): Boolean!
 }
 

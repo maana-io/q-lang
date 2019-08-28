@@ -95,19 +95,15 @@ var grammar = {
     {"name": "__$ebnf$1", "symbols": ["__$ebnf$1", "wschar"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "__", "symbols": ["__$ebnf$1"], "postprocess": () => null},
     {"name": "wschar", "symbols": [/[ \t\r\n\v\f]/], "postprocess": id},
-    {"name": "input", "symbols": ["_", "preamble", "__", "definitions", "_"], "postprocess":  d => ({
-            ...d[1],
-            definitions: d[3]
-        }) },
-    {"name": "apply", "symbols": ["service_identifier", {"literal":"."}, "identifier"]},
+    {"name": "input", "symbols": ["_", "preamble", "__", "definitions", "_"], "postprocess": d => ({ ...d[1], definitions: d[3] })},
     {"name": "preamble$ebnf$1", "symbols": ["imports"], "postprocess": id},
     {"name": "preamble$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "preamble", "symbols": ["service", "__", "preamble$ebnf$1"], "postprocess": d => ({ ...d[0], imports: d[2] })},
     {"name": "definitions", "symbols": ["definition"], "postprocess": d => [d[0]]},
     {"name": "definitions", "symbols": ["definition", "__", "definitions"], "postprocess": d => [d[0], ...d[2]]},
-    {"name": "definition", "symbols": ["function"], "postprocess": id},
-    {"name": "definition", "symbols": ["interface"], "postprocess": id},
-    {"name": "definition", "symbols": ["type"], "postprocess": id},
+    {"name": "definition", "symbols": ["function_definition"], "postprocess": id},
+    {"name": "definition", "symbols": ["interface_definition"], "postprocess": id},
+    {"name": "definition", "symbols": ["type_definition"], "postprocess": id},
     {"name": "service$string$1", "symbols": [{"literal":"s"}, {"literal":"e"}, {"literal":"r"}, {"literal":"v"}, {"literal":"i"}, {"literal":"c"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "service", "symbols": ["service$string$1", "__", "service_identifier"], "postprocess": d => ({ service: d[2] })},
     {"name": "imports", "symbols": ["import"], "postprocess": d => [d[0]]},
@@ -115,11 +111,7 @@ var grammar = {
     {"name": "import$string$1", "symbols": [{"literal":"i"}, {"literal":"m"}, {"literal":"p"}, {"literal":"o"}, {"literal":"r"}, {"literal":"t"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "import$ebnf$1", "symbols": ["import_as"], "postprocess": id},
     {"name": "import$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "import", "symbols": ["import$string$1", "__", "import_identifier", "import$ebnf$1", "__", "import_selector_block"], "postprocess":  d => ({
-            service: d[2],
-            alias: d[3],
-            import: d[5]
-        }) },
+    {"name": "import", "symbols": ["import$string$1", "__", "import_identifier", "import$ebnf$1", "__", "import_selector_block"], "postprocess": d => ({ service: d[2], alias: d[3], import: d[5] })},
     {"name": "import_identifier", "symbols": ["service_identifier"], "postprocess": id},
     {"name": "import_as$string$1", "symbols": [{"literal":"a"}, {"literal":"s"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "import_as", "symbols": ["__", "import_as$string$1", "__", "identifier"], "postprocess": d => d[3]},
@@ -127,31 +119,39 @@ var grammar = {
     {"name": "import_selectors", "symbols": ["import_selector"], "postprocess": d => [d[0]]},
     {"name": "import_selectors", "symbols": ["import_selector", "__", "import_selectors"], "postprocess": d => [d[0], ...d[2]]},
     {"name": "import_selector", "symbols": ["identifier"], "postprocess": id},
-    {"name": "interface$string$1", "symbols": [{"literal":"i"}, {"literal":"n"}, {"literal":"t"}, {"literal":"e"}, {"literal":"r"}, {"literal":"f"}, {"literal":"a"}, {"literal":"c"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "interface", "symbols": ["interface$string$1", "__", "identifier"], "postprocess":  d => ({
-          interface: {
-            name: d[2]
-          }
-        }) },
-    {"name": "type$string$1", "symbols": [{"literal":"t"}, {"literal":"y"}, {"literal":"p"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "type", "symbols": ["type$string$1", "__", "identifier", "_", {"literal":"{"}, "_", "type_fields", "_", {"literal":"}"}], "postprocess":  d => ({
-          type: {
-            name: d[2],
-            fields: d[6]
-          }
-        }) },
-    {"name": "type_fields", "symbols": ["type_field"], "postprocess": d => [d[0]]},
-    {"name": "type_fields", "symbols": ["type_field", "__", "type_fields"], "postprocess": d => [d[0], ...d[2]]},
-    {"name": "type_field", "symbols": ["identifier", "_", {"literal":":"}, "_", "type_field_type"], "postprocess": d => ({ name: d[0], type_sig: d[4] })},
-    {"name": "type_field_type", "symbols": ["identifier"], "postprocess": d => ({ type: d[0] })},
-    {"name": "type_field_type", "symbols": ["type_field_type", {"literal":"!"}], "postprocess": d => ({ required: d[0] })},
-    {"name": "type_field_type", "symbols": [{"literal":"["}, "_", "type_field_type", "_", {"literal":"]"}], "postprocess": d => ({ arrayOf: d[2] })},
-    {"name": "function$string$1", "symbols": [{"literal":"f"}, {"literal":"u"}, {"literal":"n"}, {"literal":"c"}, {"literal":"t"}, {"literal":"i"}, {"literal":"o"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "function", "symbols": ["function$string$1", "__", "identifier"], "postprocess":  d => ({
-          function: {
-            name: d[2]
-          }
-        }) }
+    {"name": "interface_definition$string$1", "symbols": [{"literal":"i"}, {"literal":"n"}, {"literal":"t"}, {"literal":"e"}, {"literal":"r"}, {"literal":"f"}, {"literal":"a"}, {"literal":"c"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "interface_definition", "symbols": ["interface_definition$string$1", "__", "identifier", "_", "field_block"], "postprocess": d => ({ interface: { name: d[2], fields: d[4] }})},
+    {"name": "type_definition$string$1", "symbols": [{"literal":"t"}, {"literal":"y"}, {"literal":"p"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "type_definition$ebnf$1", "symbols": ["implements_interface"], "postprocess": id},
+    {"name": "type_definition$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "type_definition", "symbols": ["type_definition$string$1", "__", "identifier", "_", "type_definition$ebnf$1", "_", "field_block"], "postprocess": d => ({ type: { name: d[2], implements: d[4], fields: d[6] }})},
+    {"name": "type", "symbols": ["identifier"], "postprocess": d => ({ id: d[0] })},
+    {"name": "type", "symbols": ["type", {"literal":"!"}], "postprocess": d => ({ required: d[0] })},
+    {"name": "type", "symbols": [{"literal":"["}, "_", "type", "_", {"literal":"]"}], "postprocess": d => ({ arrayOf: d[2] })},
+    {"name": "implements_interface$string$1", "symbols": [{"literal":"i"}, {"literal":"m"}, {"literal":"p"}, {"literal":"l"}, {"literal":"e"}, {"literal":"m"}, {"literal":"e"}, {"literal":"n"}, {"literal":"t"}, {"literal":"s"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "implements_interface", "symbols": ["implements_interface$string$1", "__", "interface_ref"], "postprocess": d => [d[2]]},
+    {"name": "implements_interface", "symbols": ["implements_interface", "_", {"literal":"&"}, "_", "interface_ref"], "postprocess": d => [...d[0], d[4]]},
+    {"name": "interface_ref", "symbols": ["identifier"], "postprocess": id},
+    {"name": "function_definition$string$1", "symbols": [{"literal":"f"}, {"literal":"u"}, {"literal":"n"}, {"literal":"c"}, {"literal":"t"}, {"literal":"i"}, {"literal":"o"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "function_definition", "symbols": ["function_definition$string$1", "__", "identifier", "_", "argument_block", "_", {"literal":":"}, "_", "type", "_", "function_implementation_block"], "postprocess": d => ({ function: { name: d[2], args: d[4], type: d[8], impl: d[10] }})},
+    {"name": "function_implementation_block$ebnf$1", "symbols": ["function_implementation"], "postprocess": id},
+    {"name": "function_implementation_block$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "function_implementation_block", "symbols": [{"literal":"{"}, "_", "function_implementation_block$ebnf$1", "_", {"literal":"}"}], "postprocess": d => d[2]},
+    {"name": "function_implementation$string$1", "symbols": [{"literal":"h"}, {"literal":"i"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "function_implementation", "symbols": ["function_implementation$string$1"], "postprocess": id},
+    {"name": "function_apply", "symbols": ["service_identifier", {"literal":"."}, "identifier"]},
+    {"name": "field_block", "symbols": [{"literal":"{"}, "_", "field_definitions", "_", {"literal":"}"}], "postprocess": d => d[2]},
+    {"name": "field_definitions", "symbols": ["field_definition"], "postprocess": d => [d[0]]},
+    {"name": "field_definitions", "symbols": ["field_definition", "__", "field_definitions"], "postprocess": d => [d[0], ...d[2]]},
+    {"name": "field_definition$ebnf$1", "symbols": ["argument_block"], "postprocess": id},
+    {"name": "field_definition$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "field_definition", "symbols": ["identifier", "_", "field_definition$ebnf$1", "_", {"literal":":"}, "_", "type"], "postprocess": d => ({ name: d[0], args: d[2], type: d[6] })},
+    {"name": "argument_block$ebnf$1", "symbols": ["arguments"], "postprocess": id},
+    {"name": "argument_block$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "argument_block", "symbols": [{"literal":"("}, "_", "argument_block$ebnf$1", "_", {"literal":")"}], "postprocess": d => d[2]},
+    {"name": "arguments", "symbols": ["argument"], "postprocess": d => [d[0]]},
+    {"name": "arguments", "symbols": ["argument", "__", "arguments"], "postprocess": d => [d[0], ...d[2]]},
+    {"name": "argument", "symbols": ["identifier", "_", {"literal":":"}, "_", "type"], "postprocess": d => ({ name: d[0], type: d[4] })}
 ]
   , ParserStart: "input"
 }

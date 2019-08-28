@@ -1,5 +1,5 @@
 const nearley = require("nearley");
-const qlang = require("./qlangGrammar");
+const qlang = require("./grammar");
 
 const parse = input => {
   const parser = new nearley.Parser(nearley.Grammar.fromCompiled(qlang));

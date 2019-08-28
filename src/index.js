@@ -37,7 +37,7 @@ const main = async () => {
   console.log("ast", ast);
 
   // Persist the AST
-  await fs.writeFile(astFilename, JSON.stringify(ast));
+  await fs.writeFile(astFilename, JSON.stringify(ast, null, 2));
 
   // Generate Q service request (GraphQL)
   const gql = await genQService.generate(ast);

@@ -95,19 +95,22 @@ var grammar = {
     {"name": "__$ebnf$1", "symbols": ["__$ebnf$1", "wschar"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "__", "symbols": ["__$ebnf$1"], "postprocess": () => null},
     {"name": "wschar", "symbols": [/[ \t\r\n\v\f]/], "postprocess": id},
-    {"name": "input", "symbols": ["preamble"], "postprocess":  (data) => {
+    {"name": "input", "symbols": ["_", "preamble", "__", "definitions", "_"], "postprocess":  (data) => {
           console.log('input ->', data)
-          return data[0]
+          return ({
+            ...data[1],
+            definitions: data[3]
+          })
         } },
     {"name": "apply", "symbols": ["service_identifier", {"literal":"."}, "identifier"]},
-    {"name": "items", "symbols": ["import_selector_block"], "postprocess": (data) => [data[0]]},
-    {"name": "items", "symbols": ["import_selector_block", "__", "items"], "postprocess": (data) => [data[0], ...data[2]]},
     {"name": "preamble$ebnf$1", "symbols": ["imports"], "postprocess": id},
     {"name": "preamble$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "preamble", "symbols": ["service", "__", "preamble$ebnf$1"], "postprocess":  (data) => {
          console.log("preamble ->", data)
          return ({ ...data[0], imports: data[2] })
         } },
+    {"name": "definitions", "symbols": ["definition"], "postprocess": (data) => [data[0]]},
+    {"name": "definitions", "symbols": ["definition", "__", "definitions"], "postprocess": (data) => [data[0], ...data[2]]},
     {"name": "definition", "symbols": ["type"], "postprocess": id},
     {"name": "definition", "symbols": ["function"], "postprocess": id},
     {"name": "service$string$1", "symbols": [{"literal":"s"}, {"literal":"e"}, {"literal":"r"}, {"literal":"v"}, {"literal":"i"}, {"literal":"c"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
@@ -121,8 +124,8 @@ var grammar = {
           console.log('imp2 ->', data);
           return ({
             service: data[2],
-            as: data[3],
-            selectors: data[5]
+            alias: data[3],
+            import: data[5]
           })
         }},
     {"name": "import_identifier", "symbols": ["service_identifier"], "postprocess": id},
@@ -133,9 +136,17 @@ var grammar = {
     {"name": "import_selectors", "symbols": ["import_selector", "__", "import_selectors"], "postprocess": (data) => [data[0], ...data[2]]},
     {"name": "import_selector", "symbols": ["identifier"], "postprocess": id},
     {"name": "type$string$1", "symbols": [{"literal":"t"}, {"literal":"y"}, {"literal":"p"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "type", "symbols": ["type$string$1"]},
+    {"name": "type", "symbols": ["type$string$1", "__", "identifier"], "postprocess":  (data) => ({
+          type: {
+            name: data[2]
+          }
+        }) },
     {"name": "function$string$1", "symbols": [{"literal":"f"}, {"literal":"u"}, {"literal":"n"}, {"literal":"c"}, {"literal":"t"}, {"literal":"i"}, {"literal":"o"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "function", "symbols": ["function$string$1"]}
+    {"name": "function", "symbols": ["function$string$1", "__", "identifier"], "postprocess":  (data) => ({
+          function: {
+            name: data[2]
+          }
+        }) }
 ]
   , ParserStart: "input"
 }

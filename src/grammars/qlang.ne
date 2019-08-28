@@ -8,31 +8,19 @@
 
 # Root document
 input
-  -> preamble
+  -> _ preamble __ definitions _
     {% (data) => {
       console.log('input ->', data)
-      return data[0]
+      return ({
+        ...data[1],
+        definitions: data[3]
+      })
     } %}
 
 # services can contain '.', which is also the function application symbol
 apply
   -> service_identifier "." identifier
 
-# input -> import_selector_block
-items
-  -> import_selector_block
-    {% (data) => [data[0]] %}
-  |  import_selector_block __ items
-    {% (data) => [data[0], ...data[2]] %}
-
-  # -> __ preamble __
-  # -> preamble definition:*
-    # {% (data) => { 
-      # console.log("input ->", JSON.stringify(data))
-      # const res = ({ ...data[0], ...data[1]] })
-      # //console.log("\n\nres", res)
-      # return res
-    # }%}
 
 #
 # Head portion of the document
@@ -47,6 +35,10 @@ preamble
 #
 # Body portion of the document
 #
+definitions
+  -> definition {% (data) => [data[0]] %}
+  |  definition __ definitions {% (data) => [data[0], ...data[2]] %}
+
 definition
   -> type {% id %}
   |  function {% id %}
@@ -71,8 +63,8 @@ import
       console.log('imp2 ->', data);
       return ({
         service: data[2],
-        as: data[3],
-        selectors: data[5]
+        alias: data[3],
+        import: data[5]
       })
     }%}
 
@@ -98,11 +90,21 @@ import_selector
 # Types
 #
 type
-  -> "type"
+  -> "type" __ identifier
+    {% (data) => ({
+      type: {
+        name: data[2]
+      }
+    }) %}
 
 #
 # Functions
 #
 function
-  -> "function"
+  -> "function" __ identifier
+    {% (data) => ({
+      function: {
+        name: data[2]
+      }
+    }) %}
 

@@ -11,3 +11,11 @@ import 24aa07c4-6b98-4fa5-b1b3-33a3e44a20b5 as math {
   abs
   exp
 }
+
+type foo
+
+function qux
+
+type bar
+
+function baz

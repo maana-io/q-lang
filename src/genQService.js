@@ -199,7 +199,7 @@ const generate = ast => {
       append(lines, level, `              {`);
       append(lines, level, `                name: "${field.name}"`);
       append(lines, level, `                type: {`);
-      emitType(field.type, lines);
+      emitType(field.type, lines, level);
       append(lines, level, `                }`);
       append(lines, level, `              }`);
     }
@@ -222,7 +222,7 @@ const generate = ast => {
   return lines.join("\n");
 };
 
-const emitType = (typeDef, lines) => {
+const emitType = (typeDef, lines, level) => {
   append(lines, level, `expressionType: ${OfTypeSignatureType.TYPE}`);
   append(lines, level, `detail: ${JSON.stringify(typeDef)}`);
 };

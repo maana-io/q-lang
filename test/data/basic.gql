@@ -1,11 +1,11 @@
 mutation {
   addLogicService(input: {
     id: "maana-parser-test"
-    name: "maana-parser-test"
-    description: "maana-parser-test"
+    name: "Parser Test"
+    description: "This is a description"
     addTypes: [
       {
-        name: "Person"
+        name: "[object Object]"
         signature: {
           signatureType: PRODUCT
           product: {
@@ -14,35 +14,7 @@ mutation {
                 name: "name"
                 type: {
 expressionType: TYPE
-detail: {"required":{"id":"String"}}
-                }
-              }
-              {
-                name: "dob"
-                type: {
-expressionType: TYPE
-detail: {"id":"Date"}
-                }
-              }
-              {
-                name: "children"
-                type: {
-expressionType: TYPE
-detail: {"required":{"arrayOf":{"required":{"id":"Person"}}}}
-                }
-              }
-              {
-                name: "nop"
-                type: {
-expressionType: TYPE
-detail: {"id":"Unit"}
-                }
-              }
-              {
-                name: "eq"
-                type: {
-expressionType: TYPE
-detail: {"required":{"id":"Boolean"}}
+detail: {"required":{"type":"String","parameters":null}}
                 }
               }
             ]
@@ -50,7 +22,7 @@ detail: {"required":{"id":"Boolean"}}
         }
       }
       {
-        name: "Vessel"
+        name: "[object Object]"
         signature: {
           signatureType: PRODUCT
           product: {
@@ -59,7 +31,14 @@ detail: {"required":{"id":"Boolean"}}
                 name: "id"
                 type: {
 expressionType: TYPE
-detail: {"id":"ID"}
+detail: {"type":"ID","parameters":null}
+                }
+              }
+              {
+                name: "width"
+                type: {
+expressionType: TYPE
+detail: {"required":{"type":"Float","parameters":null}}
                 }
               }
             ]

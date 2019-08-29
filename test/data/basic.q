@@ -1,4 +1,8 @@
-service maana-parser-test
+# at least 1 .q file must have a service declaration
+service maana-parser-test @service(name: "Parser Test")
+
+# additional .q file for same service
+# extends service maana-parser-test
 
 import io.maana.core as core {
   head
@@ -12,17 +16,16 @@ import 24aa07c4-6b98-4fa5-b1b3-33a3e44a20b5 as math {
   exp
 }
 
-interface Equals {
-  eq(other: Person): Boolean!
+interface Equals<A> {
+  eq(other: A): Boolean!
 }
 
-type Person implements Equals & Numeric & Show {
+type Person implements Equals<Person> & Numeric & Show {
   name: String!
   dob: Date
   children: [Person!]!
   nop(): Unit
-  eq(other: Person): Boolean! {
-    hi
+  eq(other: Person): Boolean! @function(lang="js") {
   }
 }
 

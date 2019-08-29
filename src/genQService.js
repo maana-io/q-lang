@@ -178,51 +178,58 @@ fragment Val on Value {
 */
 
 const generate = ast => {
+  // Output state
+  let level = 0;
   const lines = [];
-  lines.push(`mutation {`);
-  lines.push(`  addLogicService(input: {`);
-  lines.push(`    id: "${ast.service.id}"`);
-  lines.push(`    name: "${ast.service.name}"`);
-  lines.push(`    description: "${ast.service.description}"`);
-  lines.push(`    addTypes: [`);
+
+  append(lines, level, `mutation {`);
+  append(lines, level, `  addLogicService(input: {`);
+  append(lines, level, `    id: "${ast.service.id}"`);
+  append(lines, level, `    name: "${ast.service.name}"`);
+  append(lines, level, `    description: "${ast.service.description}"`);
+  append(lines, level, `    addTypes: [`);
   for (const def of ast.definitions.filter(x => x["type"] !== undefined)) {
-    lines.push(`      {`);
-    lines.push(`        name: "${def.type.name}"`);
-    lines.push(`        signature: {`);
-    lines.push(`          signatureType: ${SignatureType.PRODUCT}`);
-    lines.push(`          product: {`);
-    lines.push(`            fields: [`);
+    append(lines, level, `      {`);
+    append(lines, level, `        name: "${def.type.name}"`);
+    append(lines, level, `        signature: {`);
+    append(lines, level, `          signatureType: ${SignatureType.PRODUCT}`);
+    append(lines, level, `          product: {`);
+    append(lines, level, `            fields: [`);
     for (const field of def.type.fields) {
-      lines.push(`              {`);
-      lines.push(`                name: "${field.name}"`);
-      lines.push(`                type: {`);
+      append(lines, level, `              {`);
+      append(lines, level, `                name: "${field.name}"`);
+      append(lines, level, `                type: {`);
       emitType(field.type, lines);
-      lines.push(`                }`);
-      lines.push(`              }`);
+      append(lines, level, `                }`);
+      append(lines, level, `              }`);
     }
-    lines.push(`            ]`); // fields
-    lines.push(`          }`); // product
-    lines.push(`        }`); // signature
-    lines.push(`      }`); // field
+    append(lines, level, `            ]`); // fields
+    append(lines, level, `          }`); // product
+    append(lines, level, `        }`); // signature
+    append(lines, level, `      }`); // field
   }
-  lines.push(`    ]`); // types
-  lines.push(`    addFunctions: [`);
+  append(lines, level, `    ]`); // types
+  append(lines, level, `    addFunctions: [`);
   for (const def of ast.definitions.filter(x => x["function"] !== undefined)) {
-    lines.push(`      {`);
-    lines.push(`        name: "${def.function.name}"`);
-    lines.push(`      }`); // type
+    append(lines, level, `      {`);
+    append(lines, level, `        name: "${def.function.name}"`);
+    append(lines, level, `      }`); // type
   }
-  lines.push(`    ]`); // functions
-  lines.push(`  })`);
-  lines.push(`  { id }`);
-  lines.push(`}`);
+  append(lines, level, `    ]`); // functions
+  append(lines, level, `  })`);
+  append(lines, level, `  { id }`);
+  append(lines, level, `}`);
   return lines.join("\n");
 };
 
 const emitType = (typeDef, lines) => {
-  lines.push(`expressionType: ${OfTypeSignatureType.TYPE}`);
-  lines.push(`detail: ${JSON.stringify(typeDef)}`);
+  append(lines, level, `expressionType: ${OfTypeSignatureType.TYPE}`);
+  append(lines, level, `detail: ${JSON.stringify(typeDef)}`);
 };
+
+const append = (lines, level, str) => lines.push(indent(level, str));
+
+const indent = (level, str) => "  ".repeat(level) + str;
 
 module.exports = {
   generate

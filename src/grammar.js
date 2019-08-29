@@ -104,10 +104,40 @@ var grammar = {
     {"name": "definition", "symbols": ["function_definition"], "postprocess": id},
     {"name": "definition", "symbols": ["interface_definition"], "postprocess": id},
     {"name": "definition", "symbols": ["type_definition"], "postprocess": id},
+    {"name": "definition", "symbols": ["comment_block"], "postprocess": id},
+    {"name": "service$ebnf$1", "symbols": ["comment_block"], "postprocess": id},
+    {"name": "service$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "service$string$1", "symbols": [{"literal":"s"}, {"literal":"e"}, {"literal":"r"}, {"literal":"v"}, {"literal":"i"}, {"literal":"c"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "service", "symbols": ["service$string$1", "__", "service_identifier"], "postprocess": d => ({ service: { id: d[2], name: d[2], description: d[2] }})},
-    {"name": "imports", "symbols": ["import"], "postprocess": d => [d[0]]},
-    {"name": "imports", "symbols": ["import", "__", "imports"], "postprocess": d => [d[0], ...d[2]]},
+    {"name": "service$ebnf$2", "symbols": ["service_directive"], "postprocess": id},
+    {"name": "service$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "service", "symbols": ["service$ebnf$1", "service$string$1", "__", "service_identifier", "_", "service$ebnf$2"], "postprocess":  d => ({
+          service: { 
+            id: d[3],
+            name: d[3],
+            description: d[0],
+            ...d[5] // override with directives
+            }
+        }) },
+    {"name": "service_directive$string$1", "symbols": [{"literal":"@"}, {"literal":"s"}, {"literal":"e"}, {"literal":"r"}, {"literal":"v"}, {"literal":"i"}, {"literal":"c"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "service_directive$ebnf$1", "symbols": ["service_directive_args"], "postprocess": id},
+    {"name": "service_directive$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "service_directive", "symbols": ["service_directive$string$1", "_", {"literal":"("}, "_", "service_directive$ebnf$1", "_", {"literal":")"}], "postprocess":  d => {
+          const obj = {}
+          d[4].forEach(x => obj[Object.keys(x)[0]] = Object.values(x)[0] )
+          return obj
+        } },
+    {"name": "service_directive_args", "symbols": ["service_directive_arg"], "postprocess": d => [d[0]]},
+    {"name": "service_directive_args", "symbols": ["service_directive_arg", "_", {"literal":","}, "_", "service_directive_args"], "postprocess": d => [d[0], ...d[4]]},
+    {"name": "service_directive_arg$string$1", "symbols": [{"literal":"n"}, {"literal":"a"}, {"literal":"m"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "service_directive_arg", "symbols": ["service_directive_arg$string$1", "_", {"literal":":"}, "_", "dqstring"], "postprocess": d => ({ name: d[4] })},
+    {"name": "service_directive_arg$string$2", "symbols": [{"literal":"d"}, {"literal":"e"}, {"literal":"s"}, {"literal":"c"}, {"literal":"r"}, {"literal":"i"}, {"literal":"p"}, {"literal":"t"}, {"literal":"i"}, {"literal":"o"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "service_directive_arg", "symbols": ["service_directive_arg$string$2", "_", {"literal":":"}, "_", "dqstring"], "postprocess": d => ({ description: d[4] })},
+    {"name": "imports$ebnf$1", "symbols": ["comment_block"], "postprocess": id},
+    {"name": "imports$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "imports", "symbols": ["imports$ebnf$1", "_", "import"], "postprocess": d => [d[2]]},
+    {"name": "imports$ebnf$2", "symbols": ["comment_block"], "postprocess": id},
+    {"name": "imports$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "imports", "symbols": ["imports$ebnf$2", "_", "import", "__", "imports"], "postprocess": d => [d[2], ...d[4]]},
     {"name": "import$string$1", "symbols": [{"literal":"i"}, {"literal":"m"}, {"literal":"p"}, {"literal":"o"}, {"literal":"r"}, {"literal":"t"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "import$ebnf$1", "symbols": ["import_as"], "postprocess": id},
     {"name": "import$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
@@ -153,7 +183,23 @@ var grammar = {
     {"name": "argument_block", "symbols": [{"literal":"("}, "_", "argument_block$ebnf$1", "_", {"literal":")"}], "postprocess": d => d[2]},
     {"name": "arguments", "symbols": ["argument"], "postprocess": d => [d[0]]},
     {"name": "arguments", "symbols": ["argument", "__", "arguments"], "postprocess": d => [d[0], ...d[2]]},
-    {"name": "argument", "symbols": ["identifier", "_", {"literal":":"}, "_", "type"], "postprocess": d => ({ name: d[0], type: d[4] })}
+    {"name": "argument", "symbols": ["identifier", "_", {"literal":":"}, "_", "type"], "postprocess": d => ({ name: d[0], type: d[4] })},
+    {"name": "directive$ebnf$1", "symbols": ["key_values"], "postprocess": id},
+    {"name": "directive$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "directive", "symbols": [{"literal":"@"}, "identifier", "_", {"literal":"("}, "_", "directive$ebnf$1", "_", {"literal":")"}], "postprocess": d => ({ directive: { [d[1]]: d[5] } })},
+    {"name": "key_values", "symbols": ["key_value"], "postprocess": d => [d[0]]},
+    {"name": "key_values", "symbols": ["key_value", "_", "key_values"], "postprocess": d => [d[0], ...d[2]]},
+    {"name": "key_value", "symbols": ["identifier", "_", {"literal":":"}, "_", "value"], "postprocess": d => ({ [d[0]]: d[4] })},
+    {"name": "value", "symbols": ["dqstring"], "postprocess": id},
+    {"name": "value", "symbols": ["sqstring"], "postprocess": id},
+    {"name": "value", "symbols": ["int"], "postprocess": id},
+    {"name": "value", "symbols": ["jsonfloat"], "postprocess": id},
+    {"name": "comment_block", "symbols": ["comments"], "postprocess": d => d[0].join("\n")},
+    {"name": "comments", "symbols": ["comment"], "postprocess": d => [d[0]]},
+    {"name": "comments", "symbols": ["comment", "_", "comments"], "postprocess": d => [d[0], ...d[2]]},
+    {"name": "comment$ebnf$1", "symbols": []},
+    {"name": "comment$ebnf$1", "symbols": ["comment$ebnf$1", /[^\r\n]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "comment", "symbols": [{"literal":"#"}, "comment$ebnf$1", "__"], "postprocess": d => d[1].join("")}
 ]
   , ParserStart: "input"
 }

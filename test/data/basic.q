@@ -1,5 +1,7 @@
 # at least 1 .q file must have a service declaration
-service maana-parser-test @service(name: "Parser Test")
+# at least 1 .q file must have a service declaration
+service maana-parser-test @service(name: "Parser Test", description: "This is a description")
+
 
 # additional .q file for same service
 # extends service maana-parser-test
@@ -25,7 +27,7 @@ type Person implements Equals<Person> & Numeric & Show {
   dob: Date
   children: [Person!]!
   nop(): Unit
-  eq(other: Person): Boolean! @function(lang="js") {
+  eq(other: Person): Boolean! @function(lang: "js") {
   }
 }
 

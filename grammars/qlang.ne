@@ -6,6 +6,8 @@
 @include "string.ne"
 @include "whitespace.ne"
 
+#  start -> service
+
 # Root document
 input
   -> _ preamble __ definitions _ {% d => ({ ...d[1], definitions: d[3] }) %}
@@ -24,22 +26,47 @@ definitions
   |  definition __ definitions  {% d => [d[0], ...d[2]] %}
 
 definition
-  -> function_definition   {% id %}
-  |  interface_definition  {% id %}
-  |  type_definition       {% id %}
+  -> function_definition    {% id %}
+  |  interface_definition   {% id %}
+  |  type_definition        {% id %}
+  |  comment_block          {% id %}
 
 #
 # Service declaration
-#
+# - every compilation unit must have a service or extends service declaration
 service
-  -> "service" __ service_identifier {% d => ({ service: { id: d[2], name: d[2], description: d[2] }}) %}
+  -> comment_block:? "service" __ service_identifier _ service_directive:? 
+    {% d => ({
+      service: { 
+        id: d[3],
+        name: d[3],
+        description: d[0],
+        ...d[5] // override with directives
+        }
+    }) %}
+
+service_directive
+  -> "@service" _ "(" _ service_directive_args:? _ ")"
+    {% d => {
+      const obj = {}
+      d[4].forEach(x => obj[Object.keys(x)[0]] = Object.values(x)[0] )
+      return obj
+    } %}
+
+service_directive_args
+  -> service_directive_arg                                {% d => [d[0]] %}
+  |  service_directive_arg _ "," _ service_directive_args {% d => [d[0], ...d[4]] %}
+
+service_directive_arg
+  -> "name" _ ":" _ dqstring        {% d => ({ name: d[4] }) %}
+  |  "description" _ ":" _ dqstring {% d => ({ description: d[4] }) %}
 
 #
 # Imports
 #
 imports
-  -> import             {% d => [d[0]] %}
-  |  import __ imports  {% d => [d[0], ...d[2]] %}
+  -> comment_block:? _ import             {% d => [d[2]] %}
+  |  comment_block:? _ import __ imports  {% d => [d[2], ...d[4]] %}
 
 import
   -> "import" __ import_identifier import_as:? __ import_selector_block
@@ -131,3 +158,35 @@ arguments
 
 argument
   -> identifier _ ":" _ type {% d => ({ name: d[0], type: d[4] }) %}
+
+#
+# Directives
+#
+directive
+  -> "@" identifier _ "(" _ key_values:? _ ")" {% d => ({ directive: { [d[1]]: d[5] } }) %}
+
+key_values
+  -> key_value {% d => [d[0]] %}
+  |  key_value _ key_values {% d => [d[0], ...d[2]] %}
+
+key_value
+  -> identifier _ ":" _ value {% d => ({ [d[0]]: d[4] }) %}
+
+value
+  -> dqstring   {% id %}
+  |  sqstring   {% id %}
+  |  int        {% id %}
+  |  jsonfloat  {% id %}
+
+#
+# Comments
+#
+comment_block
+  -> comments {% d => d[0].join("\n") %}
+
+comments
+  -> comment {% d => [d[0]] %}
+  |  comment _ comments {% d => [d[0], ...d[2]] %}
+
+comment
+  -> "#" [^\r\n]:* __ {% d => d[1].join("") %}

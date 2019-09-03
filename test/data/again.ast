@@ -1,51 +1,65 @@
 {
-  "service": {
-    "id": "\"maana-basic-parser-test\"",
-    "name": "\"Parser Test\"",
-    "description": "\"This is a description\""
-  },
-  "imports": [
+  "service": [
     {
-      "service": "maana-ai-goap",
-      "alias": "goap",
-      "selectors": null
-    },
-    {
-      "service": "io.maana.core",
-      "alias": "core",
-      "selectors": null
-    },
-    {
-      "service": "53bc85e5-a722-4472-928f-4707f1e394a5",
-      "alias": "mysvc",
-      "selectors": [
-        "umbrate",
-        "Polibius"
-      ]
-    },
-    {
-      "service": "other_imported_service",
-      "alias": null,
-      "selectors": null
-    },
-    {
-      "service": "yet_another_imported_service",
-      "alias": null,
-      "selectors": null
+      "id": "\"maana-basic-parser-test\"",
+      "name": "\"Parser Test\"",
+      "description": "\"This is a description\""
     }
   ],
-  "interfaces": [
-    "IUnknown"
-  ],
-  "types": [
-    "Concrete",
-    "Person"
-  ],
   "functions": [
-    "this_is_a_function"
-  ],
-  "includes": [
-    "other_qlang_includeD_file",
-    "yet_another_included_qlang_file"
+    {
+      "name": "this_is_a_function"
+    },
+    {
+      "name": "this_is_a_function"
+    },
+    {
+      "name": "this_is_a_function"
+    },
+    {
+      "name": "this_is_a_function"
+    },
+    {
+      "name": "this_is_a_function"
+    },
+    {
+      "name": "this_is_a_function"
+    },
+    {
+      "name": "this_is_a_function"
+    },
+    {
+      "name": "this_is_a_function"
+    },
+    {
+      "name": "this_is_a_function"
+    },
+    {
+      "name": "this_is_a_function"
+    },
+    {
+      "name": "this_is_a_function"
+    },
+    {
+      "name": "this_is_a_function"
+    },
+    {
+      "name": "this_is_a_function"
+    },
+    {
+      "name": "this_is_a_function"
+    },
+    {
+      "name": "this_is_a_function"
+    },
+    {
+      "name": "this_is_a_function"
+    },
+    {
+      "name": "this_is_a_function"
+    },
+    {
+      "name": "this_is_a_function"
+    }
   ]
 }

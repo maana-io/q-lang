@@ -80,18 +80,22 @@ const mkObjectFromCollections = cols => {
 
 
 start
-  -> _ service_directive _ statements:? _ %WS:?
-    {% d => Object.assign({}, d[1], mkObjectFromCollections(d[3])) %}
-    
+  -> _
+    {% d => {
+      console.log('start ->', JSON.stringify(d, null, 2))
+      return Object.assign({}, d[1], mkObjectFromCollections(d[0])) 
+    } %}
+words -> (_ %WORD):* {% id %}
+
 #
 # Service directive
 #
 service_directive
-  -> "@" _ %SERVICE _ "(" _ service_directive_args _ ")" 
-    {% d => ({ service: mkObjectFromPairs(d[6]) }) %}
+  -> "@" _ %SERVICE _ "(" service_directive_args _ ")" 
+    {% d =>({ service: mkObjectFromPairs(d[5]) }) %}
 
 service_directive_args
-  -> service_directive_arg {% d => [d[0]] %}
+  -> _ service_directive_arg {% d => [d[1]] %}
    | service_directive_args ws service_directive_arg {% d => [...d[0], d[2]] %}
 
 service_directive_arg
@@ -103,14 +107,16 @@ service_directive_arg
 # Statements
 #
 statements
-  -> statement {% d => [d[0]] %}
-   | statements ws statement {% d=> [...d[0], d[2]] %}
+  -> _ statement {% d => { console.log("s", d); return [d[1]] } %}
+   | statements ws statement {% d=> { console.log("ss", d); return [...d[0], d[2]] } %}
 
 statement
-  -> import_statement {% id %}
-   | include_statement {% id %}
-   | interface_statement {% id %}
-   | type_statement {% id %}
+  -> _ {% d => { console.log('statement', d); return d[0] } %}
+     | service_directive {% id %}
+  #  | import_statement {% id %}
+  #  | include_statement {% id %}
+  #  | interface_statement {% id %}
+  #  | type_statement {% id %}
    | function_statement {% id %}
 
 #
@@ -155,7 +161,36 @@ type_statement
 # Function statement
 #
 function_statement
-  -> %FUNCTION ws %WORD {% d => ({ functions: d[2].value }) %}
+  -> %FUNCTION ws field {% d => ({ functions: d[2] }) %}
+
+field
+  -> %WORD {% d => ({ name: d[0].value, args: d[1] }) %}
+  # -> %WORD function_argument_block:? {% d => ({ name: d[0].value, args: d[1] }) %}
+
+function_argument_block
+  -> _ "(" _ arguments:? _ ")" {% d => d[3] %}
+
+arguments
+  -> argument {% d => [d[0]] %}
+   | arguments _ "," _ argument {% d => [...d[0], d[4]] %}
+
+argument
+  -> _ %WORD _ ":" _ wrapped_type {% d => ({ arg: d[1].value, type: d[5] }) %}
+
+wrapped_type
+  -> %WORD type_parameter_block:? {% d => ({ type: d[0].value, params: d[1] }) %}
+   | wrapped_type _ "!" {% d => ({ required: d[0] }) %}
+   | "[" _ wrapped_type _ "]" {% d => ({ array: d[2] }) %}
+
+type_parameter_block
+  -> _ "<" type_parameters:? ws ">"
+
+type_parameters
+  -> type_parameter {% d => [d[0]] %}
+   | type_parameters _ "," _ type_parameter {% d => [...d[0], d[4]] %}
+
+type_parameter
+  -> %WORD {% d => d[0].value %}
 
 #
 # Directive arguments
@@ -173,11 +208,11 @@ description_arg
 # Whitespace
 #
 _
-  -> ws:?
+  -> ws:? {% d => { console.log('_', d); return null } %}
 
 ws
-  -> %WS
-   | %WS:? %COMMENT _
+  -> %WS {% d => { console.log('%WS', d); return null } %}
+   | %WS:? %COMMENT _ {% d => { console.log('comment', d); return ({ comment: d[1].value }) } %}
 
 ######################
 

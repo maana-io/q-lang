@@ -1,140 +1,120 @@
-// Generated automatically by nearley, version 2.18.0
+// Generated automatically by nearley, version 2.19.0
 // http://github.com/Hardmath123/nearley
 (function () {
 function id(x) { return x[0]; }
+
+
+const moo = require('moo')
+
+let lexer = moo.compile({
+    // Literals
+    '{': '{',
+    '}': '}',
+    '[': '[',
+    ']': ']',
+    '<': '<',
+    '>': '>',
+    '(': '(',
+    ')': ')',
+    '@': '@',
+    '&': '&',
+    ',': ',',
+    ':': ':',
+    '=': '=',
+    '=>': '=>',
+    TRUE: 'true',
+    FALSE: 'false',
+    NULL: 'null',
+    SERVICE: 'service',
+    ID: 'id',
+    NAME: 'name',
+    DESCRIPTION: 'description',
+    IMPORT: 'import',
+    AS: 'as',
+    INCLUDE: 'include',
+    INTERFACE: 'interface',
+    TYPE: 'type',
+    IMPLEMENTS: 'implements',
+    FUNCTION: 'function',
+    // Regular expressions
+    WS: {match: /\s+/, lineBreaks: true},
+    COMMENT: /\#.*/,
+    WORD: /[\-\.\w\?\+]+/,
+    NUMBER: /-?(?:[0-9]|[1-9][0-9]+)(?:\.[0-9]+)?(?:[eE][-+]?[0-9]+)?\b/,
+    STRING: /"(?:\\["bfnrt\/\\]|\\u[a-fA-F0-9]{4}|[^"\\])*"/,
+})
+
+
+
+const mkObjectFromPairs = pairs => {
+  const obj = {}
+  pairs.forEach(x => obj[Object.keys(x)[0]] = Object.values(x)[0] )
+  return obj
+}
+
+const mkObjectFromCollections = cols => {
+  if (!cols) return
+  const obj = {}
+  cols.forEach(x => {
+    const key = Object.keys(x)[0]
+    const value = x[key]
+    let col = obj[key]
+    if (!col) {
+      col = obj[key] = []
+    }
+    col.push(value)
+  })
+  return obj
+}
 var grammar = {
-    Lexer: undefined,
+    Lexer: lexer,
     ParserRules: [
-    {"name": "identifier$ebnf$1", "symbols": []},
-    {"name": "identifier$ebnf$1", "symbols": ["identifier$ebnf$1", "identifier_nth_char"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "identifier", "symbols": ["identifier_1st_char", "identifier$ebnf$1"], "postprocess": (data) => data[0] + data[1].join("")},
-    {"name": "identifier_1st_char", "symbols": [/[a-zA-Z_\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]/], "postprocess": id},
-    {"name": "identifier_nth_char", "symbols": [/[a-zA-Z_0-9\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]/], "postprocess": id},
-    {"name": "service_identifier$ebnf$1", "symbols": []},
-    {"name": "service_identifier$ebnf$1", "symbols": ["service_identifier$ebnf$1", "service_identifier_nth_char"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "service_identifier", "symbols": ["service_identifier_1st_char", "service_identifier$ebnf$1"], "postprocess": (data) => data[0] + data[1].join("")},
-    {"name": "service_identifier_1st_char", "symbols": [/[a-zA-Z_0-9\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]/], "postprocess": id},
-    {"name": "service_identifier_nth_char", "symbols": [/[a-zA-Z_\-.0-9\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]/], "postprocess": id},
-    {"name": "unsigned_int$ebnf$1", "symbols": [/[0-9]/]},
-    {"name": "unsigned_int$ebnf$1", "symbols": ["unsigned_int$ebnf$1", /[0-9]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "unsigned_int", "symbols": ["unsigned_int$ebnf$1"], "postprocess": (data) => parseInt(d[0].join(""))},
-    {"name": "int$ebnf$1$subexpression$1", "symbols": [{"literal":"-"}]},
-    {"name": "int$ebnf$1$subexpression$1", "symbols": [{"literal":"+"}]},
-    {"name": "int$ebnf$1", "symbols": ["int$ebnf$1$subexpression$1"], "postprocess": id},
-    {"name": "int$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "int$ebnf$2", "symbols": [/[0-9]/]},
-    {"name": "int$ebnf$2", "symbols": ["int$ebnf$2", /[0-9]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "int", "symbols": ["int$ebnf$1", "int$ebnf$2"], "postprocess":  (data) => {
-            if (d[0]) {
-                return parseInt(d[0][0]+d[1].join(""));
-            } else {
-                return parseInt(d[1].join(""));
-            }
-        } },
-    {"name": "unsigned_decimal$ebnf$1", "symbols": [/[0-9]/]},
-    {"name": "unsigned_decimal$ebnf$1", "symbols": ["unsigned_decimal$ebnf$1", /[0-9]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "unsigned_decimal$ebnf$2$subexpression$1$ebnf$1", "symbols": [/[0-9]/]},
-    {"name": "unsigned_decimal$ebnf$2$subexpression$1$ebnf$1", "symbols": ["unsigned_decimal$ebnf$2$subexpression$1$ebnf$1", /[0-9]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "unsigned_decimal$ebnf$2$subexpression$1", "symbols": [{"literal":"."}, "unsigned_decimal$ebnf$2$subexpression$1$ebnf$1"]},
-    {"name": "unsigned_decimal$ebnf$2", "symbols": ["unsigned_decimal$ebnf$2$subexpression$1"], "postprocess": id},
-    {"name": "unsigned_decimal$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "unsigned_decimal", "symbols": ["unsigned_decimal$ebnf$1", "unsigned_decimal$ebnf$2"], "postprocess": (data) => parseFloat(d[0].join("") + (d[1] ? "."+d[1][1].join("") : ""))},
-    {"name": "decimal$ebnf$1", "symbols": [{"literal":"-"}], "postprocess": id},
-    {"name": "decimal$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "decimal$ebnf$2", "symbols": [/[0-9]/]},
-    {"name": "decimal$ebnf$2", "symbols": ["decimal$ebnf$2", /[0-9]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "decimal$ebnf$3$subexpression$1$ebnf$1", "symbols": [/[0-9]/]},
-    {"name": "decimal$ebnf$3$subexpression$1$ebnf$1", "symbols": ["decimal$ebnf$3$subexpression$1$ebnf$1", /[0-9]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "decimal$ebnf$3$subexpression$1", "symbols": [{"literal":"."}, "decimal$ebnf$3$subexpression$1$ebnf$1"]},
-    {"name": "decimal$ebnf$3", "symbols": ["decimal$ebnf$3$subexpression$1"], "postprocess": id},
-    {"name": "decimal$ebnf$3", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "decimal", "symbols": ["decimal$ebnf$1", "decimal$ebnf$2", "decimal$ebnf$3"], "postprocess": (data) => parseFloat((d[0] || "") + d[1].join("") + (d[2] ? "."+d[2][1].join("") : ""))},
-    {"name": "percentage", "symbols": ["decimal", {"literal":"%"}], "postprocess": (data) => d[0]/100},
-    {"name": "jsonfloat$ebnf$1", "symbols": [{"literal":"-"}], "postprocess": id},
-    {"name": "jsonfloat$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "jsonfloat$ebnf$2", "symbols": [/[0-9]/]},
-    {"name": "jsonfloat$ebnf$2", "symbols": ["jsonfloat$ebnf$2", /[0-9]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "jsonfloat$ebnf$3$subexpression$1$ebnf$1", "symbols": [/[0-9]/]},
-    {"name": "jsonfloat$ebnf$3$subexpression$1$ebnf$1", "symbols": ["jsonfloat$ebnf$3$subexpression$1$ebnf$1", /[0-9]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "jsonfloat$ebnf$3$subexpression$1", "symbols": [{"literal":"."}, "jsonfloat$ebnf$3$subexpression$1$ebnf$1"]},
-    {"name": "jsonfloat$ebnf$3", "symbols": ["jsonfloat$ebnf$3$subexpression$1"], "postprocess": id},
-    {"name": "jsonfloat$ebnf$3", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "jsonfloat$ebnf$4$subexpression$1$ebnf$1", "symbols": [/[+-]/], "postprocess": id},
-    {"name": "jsonfloat$ebnf$4$subexpression$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "jsonfloat$ebnf$4$subexpression$1$ebnf$2", "symbols": [/[0-9]/]},
-    {"name": "jsonfloat$ebnf$4$subexpression$1$ebnf$2", "symbols": ["jsonfloat$ebnf$4$subexpression$1$ebnf$2", /[0-9]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "jsonfloat$ebnf$4$subexpression$1", "symbols": [/[eE]/, "jsonfloat$ebnf$4$subexpression$1$ebnf$1", "jsonfloat$ebnf$4$subexpression$1$ebnf$2"]},
-    {"name": "jsonfloat$ebnf$4", "symbols": ["jsonfloat$ebnf$4$subexpression$1"], "postprocess": id},
-    {"name": "jsonfloat$ebnf$4", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "jsonfloat", "symbols": ["jsonfloat$ebnf$1", "jsonfloat$ebnf$2", "jsonfloat$ebnf$3", "jsonfloat$ebnf$4"], "postprocess":  (data) => parseFloat(
-        (d[0] || "") + d[1].join("") +
-        (d[2] ? "." + d[2][1].join("") : "") +
-        (d[3] ? "e" + (d[3][1] || "+") + d[3][2].join("") : ""))
-            },
-    {"name": "dqstring$ebnf$1", "symbols": []},
-    {"name": "dqstring$ebnf$1", "symbols": ["dqstring$ebnf$1", "dstrchar"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "dqstring", "symbols": [{"literal":"\""}, "dqstring$ebnf$1", {"literal":"\""}], "postprocess": (data) => data[1].join("")},
-    {"name": "dstrchar", "symbols": [/[^\\"\n]/], "postprocess": id},
-    {"name": "dstrchar", "symbols": [{"literal":"\\"}, "strescape"], "postprocess": (data) => JSON.parse("\"" + data.join("" ) + "\"")},
-    {"name": "sqstring$ebnf$1", "symbols": []},
-    {"name": "sqstring$ebnf$1", "symbols": ["sqstring$ebnf$1", "sstrchar"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "sqstring", "symbols": [{"literal":"'"}, "sqstring$ebnf$1", {"literal":"'"}], "postprocess": (data) => data[1].join("")},
-    {"name": "sstrchar", "symbols": [/[^\\'\n]/], "postprocess": id},
-    {"name": "sstrchar", "symbols": [{"literal":"\\"}, "strescape"], "postprocess": (data) => JSON.parse("\"" + data.join("") + "\"")},
-    {"name": "sstrchar$string$1", "symbols": [{"literal":"\\"}, {"literal":"'"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "sstrchar", "symbols": ["sstrchar$string$1"], "postprocess": () => "'"},
-    {"name": "strescape", "symbols": [/["\\\/bfnrt]/], "postprocess": id},
-    {"name": "strescape", "symbols": [{"literal":"u"}, /[a-fA-F0-9]/, /[a-fA-F0-9]/, /[a-fA-F0-9]/, /[a-fA-F0-9]/], "postprocess": (data) => data.join("")},
-    {"name": "btstring$ebnf$1", "symbols": []},
-    {"name": "btstring$ebnf$1", "symbols": ["btstring$ebnf$1", /[^`]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "btstring", "symbols": [{"literal":"`"}, "btstring$ebnf$1", {"literal":"`"}], "postprocess": (data) => data[1].join("")},
-    {"name": "_$ebnf$1", "symbols": []},
-    {"name": "_$ebnf$1", "symbols": ["_$ebnf$1", "wschar"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "_", "symbols": ["_$ebnf$1"], "postprocess": () => null},
-    {"name": "__$ebnf$1", "symbols": ["wschar"]},
-    {"name": "__$ebnf$1", "symbols": ["__$ebnf$1", "wschar"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "__", "symbols": ["__$ebnf$1"], "postprocess": () => null},
-    {"name": "wschar", "symbols": [/[ \t\r\n\v\f]/], "postprocess": id},
-    {"name": "zed", "symbols": ["schemas", "_"], "postprocess": d => d[0]},
-    {"name": "schemas", "symbols": ["schema"], "postprocess": d => [d[0]]},
-    {"name": "schemas", "symbols": ["schema", "__", "schemas"], "postprocess": d => [d[0], ...d[2]]},
-    {"name": "schema$string$1", "symbols": [{"literal":"s"}, {"literal":"c"}, {"literal":"h"}, {"literal":"e"}, {"literal":"m"}, {"literal":"a"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "schema$ebnf$1", "symbols": ["predicates_block"], "postprocess": id},
-    {"name": "schema$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "schema", "symbols": ["_", "schema$string$1", "__", "identifier", "_", "declarations_block", "_", "schema$ebnf$1"], "postprocess": d => ({ schema: { name: d[3], declarations: d[5], predicates: d[7] } })},
-    {"name": "declarations_block$ebnf$1", "symbols": ["declarations"], "postprocess": id},
-    {"name": "declarations_block$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "declarations_block", "symbols": [{"literal":"{"}, "_", "declarations_block$ebnf$1", "_", {"literal":"}"}], "postprocess": d => d[2]},
-    {"name": "predicates_block$string$1", "symbols": [{"literal":"w"}, {"literal":"h"}, {"literal":"e"}, {"literal":"r"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "predicates_block$ebnf$1", "symbols": ["predicates"], "postprocess": id},
-    {"name": "predicates_block$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "predicates_block", "symbols": ["predicates_block$string$1", "_", {"literal":"{"}, "_", "predicates_block$ebnf$1", "_", {"literal":"}"}], "postprocess": d => d[4]},
-    {"name": "declarations", "symbols": ["declaration"], "postprocess": d => [d[0]]},
-    {"name": "declarations", "symbols": ["declaration", "__", "declarations"], "postprocess": d => [d[0], ...d[2]]},
-    {"name": "declaration", "symbols": ["identifier", "_", {"literal":":"}, "_", "identifier"], "postprocess": d => ({ declaration: { [d[0]] : d[4] }})},
-    {"name": "predicates", "symbols": ["predicate"], "postprocess": d => [d[0]]},
-    {"name": "predicates", "symbols": ["predicate", "__", "predicates"], "postprocess": d => [d[0], ...d[2]]},
-    {"name": "predicate", "symbols": ["not"], "postprocess": id},
-    {"name": "predicate", "symbols": ["and"], "postprocess": id},
-    {"name": "predicate", "symbols": ["or"], "postprocess": id},
-    {"name": "predicate", "symbols": ["iff"], "postprocess": id},
-    {"name": "predicate", "symbols": ["implies"], "postprocess": id},
-    {"name": "predicate", "symbols": [{"literal":"("}, "_", "predicate", "_", {"literal":")"}], "postprocess": d => d[2]},
-    {"name": "predicate$string$1", "symbols": [{"literal":"t"}, {"literal":"r"}, {"literal":"u"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "predicate", "symbols": ["predicate$string$1"], "postprocess": () => ({ true: true })},
-    {"name": "predicate$string$2", "symbols": [{"literal":"f"}, {"literal":"a"}, {"literal":"l"}, {"literal":"s"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "predicate", "symbols": ["predicate$string$2"], "postprocess": () => ({ false: false })},
-    {"name": "not", "symbols": [{"literal":"!"}, "_", "predicate"], "postprocess": d => ({ not: { p: d[2] } })},
-    {"name": "and$string$1", "symbols": [{"literal":"/"}, {"literal":"\\"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "and", "symbols": ["predicate", "_", "and$string$1", "_", "predicate"], "postprocess": d => ({ and: { p: d[0], q: d[4] } })},
-    {"name": "or$string$1", "symbols": [{"literal":"\\"}, {"literal":"/"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "or", "symbols": ["predicate", "_", "or$string$1", "_", "predicate"], "postprocess": d => ({ or: { p: d[0], q: d[4] } })},
-    {"name": "iff$string$1", "symbols": [{"literal":"i"}, {"literal":"f"}, {"literal":"f"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "iff", "symbols": ["predicate", "_", "iff$string$1", "__", "predicate"], "postprocess": d => ({ iff: { p: d[0], q: d[4] } })},
-    {"name": "implies$string$1", "symbols": [{"literal":"="}, {"literal":">"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "implies", "symbols": ["predicate", "_", "implies$string$1", "_", "predicate"], "postprocess": d => ({ implies: { p: d[0], q: d[4] } })}
+    {"name": "start$ebnf$1", "symbols": ["statements"], "postprocess": id},
+    {"name": "start$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "start$ebnf$2", "symbols": [(lexer.has("WS") ? {type: "WS"} : WS)], "postprocess": id},
+    {"name": "start$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "start", "symbols": ["_", "service_directive", "_", "start$ebnf$1", "_", "start$ebnf$2"], "postprocess": d => Object.assign({}, d[1], mkObjectFromCollections(d[3]))},
+    {"name": "service_directive", "symbols": [{"literal":"@"}, "_", (lexer.has("SERVICE") ? {type: "SERVICE"} : SERVICE), "_", {"literal":"("}, "_", "service_directive_args", "_", {"literal":")"}], "postprocess": d => ({ service: mkObjectFromPairs(d[6]) })},
+    {"name": "service_directive_args", "symbols": ["service_directive_arg"], "postprocess": d => [d[0]]},
+    {"name": "service_directive_args", "symbols": ["service_directive_args", "ws", "service_directive_arg"], "postprocess": d => [...d[0], d[2]]},
+    {"name": "service_directive_arg", "symbols": ["id_arg"], "postprocess": id},
+    {"name": "service_directive_arg", "symbols": ["name_arg"], "postprocess": id},
+    {"name": "service_directive_arg", "symbols": ["description_arg"], "postprocess": id},
+    {"name": "statements", "symbols": ["statement"], "postprocess": d => [d[0]]},
+    {"name": "statements", "symbols": ["statements", "ws", "statement"], "postprocess": d=> [...d[0], d[2]]},
+    {"name": "statement", "symbols": ["import_statement"], "postprocess": id},
+    {"name": "statement", "symbols": ["include_statement"], "postprocess": id},
+    {"name": "statement", "symbols": ["interface_statement"], "postprocess": id},
+    {"name": "statement", "symbols": ["type_statement"], "postprocess": id},
+    {"name": "statement", "symbols": ["function_statement"], "postprocess": id},
+    {"name": "import_statement$ebnf$1", "symbols": ["import_as"], "postprocess": id},
+    {"name": "import_statement$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "import_statement$ebnf$2", "symbols": ["import_selector_block"], "postprocess": id},
+    {"name": "import_statement$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "import_statement", "symbols": [(lexer.has("IMPORT") ? {type: "IMPORT"} : IMPORT), "ws", (lexer.has("WORD") ? {type: "WORD"} : WORD), "import_statement$ebnf$1", "import_statement$ebnf$2"], "postprocess": d => ({ imports: { service: d[2].value, alias: d[3], selectors: d[4] }})},
+    {"name": "import_as", "symbols": ["ws", (lexer.has("AS") ? {type: "AS"} : AS), "ws", (lexer.has("WORD") ? {type: "WORD"} : WORD)], "postprocess": d => d[3].value},
+    {"name": "import_selector_block$ebnf$1", "symbols": ["import_selectors"], "postprocess": id},
+    {"name": "import_selector_block$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "import_selector_block", "symbols": ["_", {"literal":"{"}, "import_selector_block$ebnf$1", "_", {"literal":"}"}], "postprocess": d => d[2]},
+    {"name": "import_selectors", "symbols": ["import_selector"], "postprocess": d => [d[0]]},
+    {"name": "import_selectors", "symbols": ["import_selectors", "ws", "import_selector"], "postprocess": d => [...d[0], d[2]]},
+    {"name": "import_selector", "symbols": ["_", (lexer.has("WORD") ? {type: "WORD"} : WORD)], "postprocess": d => d[1].value},
+    {"name": "include_statement", "symbols": [(lexer.has("INCLUDE") ? {type: "INCLUDE"} : INCLUDE), "ws", (lexer.has("WORD") ? {type: "WORD"} : WORD)], "postprocess": d => ({ includes: d[2].value })},
+    {"name": "interface_statement", "symbols": [(lexer.has("INTERFACE") ? {type: "INTERFACE"} : INTERFACE), "ws", (lexer.has("WORD") ? {type: "WORD"} : WORD)], "postprocess": d => ({ interfaces: d[2].value })},
+    {"name": "type_statement", "symbols": [(lexer.has("TYPE") ? {type: "TYPE"} : TYPE), "ws", (lexer.has("WORD") ? {type: "WORD"} : WORD)], "postprocess": d => ({ types: d[2].value })},
+    {"name": "function_statement", "symbols": [(lexer.has("FUNCTION") ? {type: "FUNCTION"} : FUNCTION), "ws", (lexer.has("WORD") ? {type: "WORD"} : WORD)], "postprocess": d => ({ functions: d[2].value })},
+    {"name": "id_arg", "symbols": [(lexer.has("ID") ? {type: "ID"} : ID), "_", {"literal":":"}, "_", (lexer.has("STRING") ? {type: "STRING"} : STRING)], "postprocess": d => ({ id: d[4].value })},
+    {"name": "name_arg", "symbols": [(lexer.has("NAME") ? {type: "NAME"} : NAME), "_", {"literal":":"}, "_", (lexer.has("STRING") ? {type: "STRING"} : STRING)], "postprocess": d => ({ name: d[4].value })},
+    {"name": "description_arg", "symbols": [(lexer.has("DESCRIPTION") ? {type: "DESCRIPTION"} : DESCRIPTION), "_", {"literal":":"}, "_", (lexer.has("STRING") ? {type: "STRING"} : STRING)], "postprocess": d => ({ description: d[4].value })},
+    {"name": "_$ebnf$1", "symbols": ["ws"], "postprocess": id},
+    {"name": "_$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "_", "symbols": ["_$ebnf$1"]},
+    {"name": "ws", "symbols": [(lexer.has("WS") ? {type: "WS"} : WS)]},
+    {"name": "ws$ebnf$1", "symbols": [(lexer.has("WS") ? {type: "WS"} : WS)], "postprocess": id},
+    {"name": "ws$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "ws", "symbols": ["ws$ebnf$1", (lexer.has("COMMENT") ? {type: "COMMENT"} : COMMENT), "_"]}
 ]
-  , ParserStart: "zed"
+  , ParserStart: "start"
 }
 if (typeof module !== 'undefined'&& typeof module.exports !== 'undefined') {
    module.exports = grammar;

@@ -74,9 +74,9 @@
         {
           "not": {
             "p": {
-              "and": {
+              "not": {
                 "p": {
-                  "not": {
+                  "and": {
                     "p": {
                       "or": {
                         "p": {
@@ -94,24 +94,24 @@
                           }
                         }
                       }
-                    }
-                  }
-                },
-                "q": {
-                  "not": {
-                    "p": {
-                      "or": {
+                    },
+                    "q": {
+                      "not": {
                         "p": {
-                          "not": {
+                          "or": {
                             "p": {
-                              "false": false
-                            }
-                          }
-                        },
-                        "q": {
-                          "not": {
-                            "p": {
-                              "true": true
+                              "not": {
+                                "p": {
+                                  "false": false
+                                }
+                              }
+                            },
+                            "q": {
+                              "not": {
+                                "p": {
+                                  "true": true
+                                }
+                              }
                             }
                           }
                         }
@@ -124,6 +124,19 @@
           }
         }
       ]
+    }
+  },
+  {
+    "schema": {
+      "name": "Contact",
+      "declarations": [
+        {
+          "declaration": {
+            "name": "String"
+          }
+        }
+      ],
+      "predicates": null
     }
   }
 ]

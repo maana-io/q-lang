@@ -12,3 +12,7 @@ schema PhoneDB {
   (true)
   !(!((!true) \/ (!false)) /\ !((!false) \/ (!true)))
 }
+
+schema Contact {
+  name: String
+}

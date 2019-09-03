@@ -2,51 +2,200 @@
 # Maana Q Language Grammar
 #
 
+
 ##############################
 
-# @{%
 
-# const moo = require('moo')
+# Lexer
+@{%
 
-# let lexer = moo.compile({
-#     id: /[a-zA-Z0-9]+/,
-#     space: {match: /\s+/, lineBreaks: true},
-#     number: /-?(?:[0-9]|[1-9][0-9]+)(?:\.[0-9]+)?(?:[eE][-+]?[0-9]+)?\b/,
-#     string: /"(?:\\["bfnrt\/\\]|\\u[a-fA-F0-9]{4}|[^"\\])*"/,
-#     '{': '{',
-#     '}': '}',
-#     '[': '[',
-#     ']': ']',
-#     '<': '<',
-#     '>': '>',
-#     '(': '(',
-#     ')': ')',
-#     ',': ',',
-#     ':': ':',
-#     '=': '=',
-#     '=>': '=>',
-#     true: 'true',
-#     false: 'false',
-#     null: 'null',
-#     type: 'type'
-# })
+const moo = require('moo')
 
-# %}
+let lexer = moo.compile({
+    // Literals
+    '{': '{',
+    '}': '}',
+    '[': '[',
+    ']': ']',
+    '<': '<',
+    '>': '>',
+    '(': '(',
+    ')': ')',
+    '@': '@',
+    '&': '&',
+    ',': ',',
+    ':': ':',
+    '=': '=',
+    '=>': '=>',
+    TRUE: 'true',
+    FALSE: 'false',
+    NULL: 'null',
+    SERVICE: 'service',
+    ID: 'id',
+    NAME: 'name',
+    DESCRIPTION: 'description',
+    IMPORT: 'import',
+    AS: 'as',
+    INCLUDE: 'include',
+    INTERFACE: 'interface',
+    TYPE: 'type',
+    IMPLEMENTS: 'implements',
+    FUNCTION: 'function',
+    // Regular expressions
+    WS: {match: /\s+/, lineBreaks: true},
+    COMMENT: /\#.*/,
+    WORD: /[\-\.\w\?\+]+/,
+    NUMBER: /-?(?:[0-9]|[1-9][0-9]+)(?:\.[0-9]+)?(?:[eE][-+]?[0-9]+)?\b/,
+    STRING: /"(?:\\["bfnrt\/\\]|\\u[a-fA-F0-9]{4}|[^"\\])*"/,
+})
 
-# @lexer lexer
+%}
+
+@lexer lexer
+
+@{%
+const mkObjectFromPairs = pairs => {
+  const obj = {}
+  pairs.forEach(x => obj[Object.keys(x)[0]] = Object.values(x)[0] )
+  return obj
+}
+
+const mkObjectFromCollections = cols => {
+  if (!cols) return
+  const obj = {}
+  cols.forEach(x => {
+    const key = Object.keys(x)[0]
+    const value = x[key]
+    let col = obj[key]
+    if (!col) {
+      col = obj[key] = []
+    }
+    col.push(value)
+  })
+  return obj
+}
+%}
 
 ######################
 
-@include "identifier.ne"
-@include "number.ne"
-@include "string.ne"
-@include "whitespace.ne"
+
+start
+  -> _ service_directive _ statements:? _ %WS:?
+    {% d => Object.assign({}, d[1], mkObjectFromCollections(d[3])) %}
+    
+#
+# Service directive
+#
+service_directive
+  -> "@" _ %SERVICE _ "(" _ service_directive_args _ ")" 
+    {% d => ({ service: mkObjectFromPairs(d[6]) }) %}
+
+service_directive_args
+  -> service_directive_arg {% d => [d[0]] %}
+   | service_directive_args ws service_directive_arg {% d => [...d[0], d[2]] %}
+
+service_directive_arg
+  -> id_arg {% id %}
+   | name_arg {% id %}
+   | description_arg {% id %}
+
+#
+# Statements
+#
+statements
+  -> statement {% d => [d[0]] %}
+   | statements ws statement {% d=> [...d[0], d[2]] %}
+
+statement
+  -> import_statement {% id %}
+   | include_statement {% id %}
+   | interface_statement {% id %}
+   | type_statement {% id %}
+   | function_statement {% id %}
+
+#
+# Import statement
+#
+import_statement
+  -> %IMPORT ws %WORD import_as:? import_selector_block:? 
+    {% d => ({ imports: { service: d[2].value, alias: d[3], selectors: d[4] }}) %}
+
+import_as
+  -> ws %AS ws %WORD {% d => d[3].value %}
+
+import_selector_block
+  -> _ "{" import_selectors:? _ "}" {% d => d[2] %}
+
+import_selectors
+  -> import_selector {% d => [d[0]] %}
+   | import_selectors ws import_selector {% d => [...d[0], d[2]] %}
+
+import_selector
+  -> _ %WORD {% d => d[1].value %}
+
+#
+# Include statement
+#
+include_statement
+  -> %INCLUDE ws %WORD {% d => ({ includes: d[2].value }) %}
+
+#
+# Interface statement
+#
+interface_statement
+  -> %INTERFACE ws %WORD {% d => ({ interfaces: d[2].value }) %}
+
+#
+# Type statement
+#
+type_statement
+  -> %TYPE ws %WORD {% d => ({ types: d[2].value }) %}
+
+#
+# Function statement
+#
+function_statement
+  -> %FUNCTION ws %WORD {% d => ({ functions: d[2].value }) %}
+
+#
+# Directive arguments
+#
+id_arg
+  -> %ID _ ":" _ %STRING {% d => ({ id: d[4].value }) %}
+
+name_arg
+  -> %NAME _ ":" _ %STRING {% d => ({ name: d[4].value }) %}
+
+description_arg
+  -> %DESCRIPTION _ ":" _ %STRING {% d => ({ description: d[4].value }) %} 
+
+#
+# Whitespace
+#
+_
+  -> ws:?
+
+ws
+  -> %WS
+   | %WS:? %COMMENT _
+
+######################
+
+
+# @include "identifier.ne"
+# @include "number.ne"
+# @include "string.ne"
+# @include "whitespace.ne"
+
 
 ##################
 
+
 # s -> %lit:+ {% id %}
 
+
 ###################
+
 
 # start -> type_def:* _ {% d => d[0] %}
 
@@ -76,217 +225,220 @@
 
 ##############
 
-# Root document
-input
-  -> _ preamble __ definitions _ {% d => ({ ...d[1], definitions: d[3] }) %}
+# # Root document
+# input
+#   -> _ preamble __ definitions _ {% d => ({ ...d[1], definitions: d[3] }) %}
 
-#
-# Head portion of the document
-#
-preamble
-  -> service __ imports:? {% d => ({ ...d[0], imports: d[2] }) %}
+# #
+# # Head portion of the document
+# #
+# preamble
+#   -> service __ imports:? {% d => ({ ...d[0], imports: d[2] }) %}
 
-#
-# Body portion of the document
-#
-definitions
-  -> definition                 {% d => [d[0]] %}
-  |  definition __ definitions  {% d => [d[0], ...d[2]] %}
+# #
+# # Body portion of the document
+# #
+# definitions
+#   -> definition                 {% d => [d[0]] %}
+#   |  definition __ definitions  {% d => [d[0], ...d[2]] %}
 
-definition
-  -> function_definition    {% id %}
-  |  interface_definition   {% id %}
-  |  type_definition        {% id %}
-  |  comment_block          {% id %}
+# definition
+#   -> function_definition    {% id %}
+#   |  interface_definition   {% id %}
+#   |  type_definition        {% id %}
+#   |  comment_block          {% id %}
 
-#
-# Service declaration
-# - every compilation unit must have a service or extends service declaration
-service
-  -> "service" __ service_identifier _ service_directive:? 
-    {% d => ({
-      service: { 
-        id: d[2],
-        name: d[2],
-        description: d[2],
-        ...d[5] // override with directives
-        }
-    }) %}
+# #
+# # Service declaration
+# # - every compilation unit must have a service or extends service declaration
+# service
+#   -> "service" __ service_identifier _ service_directive:? 
+#     {% d => ({
+#       service: { 
+#         id: d[2],
+#         name: d[2],
+#         description: d[2],
+#         ...d[5] // override with directives
+#         }
+#     }) %}
 
-service_directive
-  -> "@service" _ "(" _ service_directive_args:? _ ")"
-    {% d => {
-      const obj = {}
-      d[4].forEach(x => obj[Object.keys(x)[0]] = Object.values(x)[0] )
-      return obj
-    } %}
+# service_directive
+#   -> "@service" _ "(" _ service_directive_args:? _ ")"
+#     {% d => {
+#       const obj = {}
+#       d[4].forEach(x => obj[Object.keys(x)[0]] = Object.values(x)[0] )
+#       return obj
+#     } %}
 
-service_directive_args
-  -> service_directive_arg                                {% d => [d[0]] %}
-  |  service_directive_arg _ "," _ service_directive_args {% d => [d[0], ...d[4]] %}
+# service_directive_args
+#   -> service_directive_arg                                {% d => [d[0]] %}
+#   |  service_directive_arg _ "," _ service_directive_args {% d => [d[0], ...d[4]] %}
 
-service_directive_arg
-  -> "name" _ ":" _ dqstring        {% d => ({ name: d[4] }) %}
-  |  "description" _ ":" _ dqstring {% d => ({ description: d[4] }) %}
+# service_directive_arg
+#   -> "id" _ ":" _ dqstring          {% d => ({ name: d[4] }) %}
+#   |  "name" _ ":" _ dqstring        {% d => ({ name: d[4] }) %}
+#   |  "description" _ ":" _ dqstring {% d => ({ description: d[4] }) %}
 
-#
-# Imports
-#
-imports
-  -> import             {% d => [d[0]] %}
-  |  import __ imports  {% d => [d[0], ...d[2]] %}
+# #
+# # Imports
+# #
+# imports
+#   -> import             {% d => [d[0]] %}
+#   |  import __ imports  {% d => [d[0], ...d[2]] %}
 
-import
-  -> "import" __ import_identifier import_as:? __ import_selector_block
-    {% d => ({ service: d[2], alias: d[3], import: d[5] }) %}
+# import
+#   -> "import" __ import_identifier import_as:? __ import_selector_block
+#     {% d => ({ service: d[2], alias: d[3], import: d[5] }) %}
 
-import_identifier 
-  -> service_identifier {% id %}
+# import_identifier 
+#   -> service_identifier {% id %}
 
-import_as
-  -> __ "as" __ identifier {% d => d[3] %}
+# import_as
+#   -> __ "as" __ identifier {% d => d[3] %}
 
-import_selector_block
-  -> "{" _ import_selectors _ "}" {% d => d[2] %}
+# import_selector_block
+#   -> "{" _ import_selectors _ "}" {% d => d[2] %}
 
-import_selectors
-  -> import_selector                      {% d => [d[0]] %}
-  |  import_selector __ import_selectors  {% d => [d[0], ...d[2]] %}
+# import_selectors
+#   -> import_selector                      {% d => [d[0]] %}
+#   |  import_selector __ import_selectors  {% d => [d[0], ...d[2]] %}
 
-import_selector
-  -> identifier {% id %}
+# import_selector
+#   -> identifier {% id %}
 
-#
-# Interfaces
-#
-interface_definition
-  -> "interface" __ constrained_type _ field_block
-    {% d => ({ interface: { name: d[2], fields: d[4] }}) %}
+# #
+# # Interfaces
+# #
+# interface_definition
+#   -> "interface" __ constrained_type _ field_block
+#     {% d => ({ interface: { name: d[2], fields: d[4] }}) %}
 
-#
-# Types
-#
-type_definition
-  -> "type" __ constrained_type _ type_implements:? _ field_block _
-    {% d => ({ type: { name: d[2], implements: d[4], fields: d[6] }}) %}
+# #
+# # Types
+# #
+# type_definition
+#   -> "type" __ constrained_type _ type_implements:? _ field_block _
+#     {% d => ({ type: { name: d[2], implements: d[4], fields: d[6] }}) %}
 
-# A constrained type is a type with a type parameter that may be constrained by
-# deriving (extending) from a supertype
-constrained_type
-  -> identifier _ type_constraint_block:? {% d => ({ type: d[0], constraints: d[2] }) %}
+# # A constrained type is a type with a type parameter that may be constrained by
+# # deriving (extending) from a supertype
+# constrained_type
+#   -> identifier _ type_constraint_block:? {% d => ({ type: d[0], constraints: d[2] }) %}
 
-type_constraint_block
-  -> "<" _ type_constraints _ ">" {% d => d[2] %}
+# type_constraint_block
+#   -> "<" _ type_constraints _ ">" {% d => d[2] %}
 
-type_constraints
-  -> type_constraint                          {% d => [d[0]] %}
-  |  type_constraint _ "," _ type_constraints {% d => [d[0], ...d[4]] %}
+# type_constraints
+#   -> type_constraint                          {% d => [d[0]] %}
+#   |  type_constraint _ "," _ type_constraints {% d => [d[0], ...d[4]] %}
 
-type_constraint
-  -> identifier _ type_extends:? {% d => ({ name: d[0], type_extends: d[2] }) %}
+# type_constraint
+#   -> identifier _ type_extends:? {% d => ({ name: d[0], type_extends: d[2] }) %}
 
-type_extends
-  -> "=>" _ parameterized_type {% d => d[2] %}
+# type_extends
+#   -> "=>" _ parameterized_type {% d => d[2] %}
 
-type_implements
-  -> "implements" __ parameterized_type (_ "&" _ parameterized_type):*
-    {% d => { console.log('impl', d); return [d[2], ...d[3].map(x => x[3])] } %}
+# type_implements
+#   -> "implements" __ parameterized_type (_ "&" _ parameterized_type):*
+#     {% d => { console.log('impl', d); return [d[2], ...d[3].map(x => x[3])] } %}
 
-# Parameterized types appear on the right side of field definitions, arguments,
-# and 'implements' expressions
-parameterized_type
-  -> identifier _ type_parameter_block:? {% d => ({ type: d[0], parameters: d[2] }) %}
+# # Parameterized types appear on the right side of field definitions, arguments,
+# # and 'implements' expressions
+# parameterized_type
+#   -> identifier _ type_parameter_block:? {% d => ({ type: d[0], parameters: d[2] }) %}
 
-type_parameter_block
-  -> "<" _ type_parameters _ ">" {% d => d[2] %}
+# type_parameter_block
+#   -> "<" _ type_parameters _ ">" {% d => d[2] %}
 
-type_parameters
-  -> identifier                    {% d => [d[0]] %}
-  |  identifier _ "," _ identifier {% d => [d[0], ...d[4]] %}
+# type_parameters
+#   -> identifier                    {% d => [d[0]] %}
+#   |  identifier _ "," _ identifier {% d => [d[0], ...d[4]] %}
 
-# GraphQL-style type (e.g., [Person!]!)
-type
-  -> parameterized_type {% id %}                        # standalone type
-  |  type "!"           {% d => ({ required: d[0] }) %} # non-null wrapper
-  |  "[" _ type _ "]"   {% d => ({ list: d[2] }) %}     # list wrapper
+# # GraphQL-style type (e.g., [Person!]!)
+# type
+#   -> parameterized_type {% id %}                        # standalone type
+#   |  type "!"           {% d => ({ required: d[0] }) %} # non-null wrapper
+#   |  "[" _ type _ "]"   {% d => ({ list: d[2] }) %}     # list wrapper
 
-#
-# Functions
-#
-function_definition
-  -> "function" __ identifier _ argument_block _ ":" _ type _ function_implementation_block
-    {% d => ({ function: { name: d[2], args: d[4], type: d[8], impl: d[10] }}) %}
+# #
+# # Functions
+# #
+# function_definition
+#   -> "function" __ identifier _ argument_block _ ":" _ type _ function_implementation_block
+#     {% d => ({ function: { name: d[2], args: d[4], type: d[8], impl: d[10] }}) %}
 
-function_implementation_block
-  -> "{" _ function_implementation:? _ "}" {% d => d[2] %}
+# function_implementation_block
+#   -> "{" _ function_implementation:? _ "}" {% d => d[2] %}
 
-function_implementation
-  -> "hi" {% id %}
+# function_implementation
+#   -> "hi" {% id %}
   
-# services can contain '.', which is also the function application symbol
-function_application
-  -> service_identifier "." identifier
+# # services can contain '.', which is also the function application symbol
+# function_application
+#   -> service_identifier "." identifier
 
-#
-# Fields
-#
-field_block
-  -> "{" _ field_definitions:? _ "}" {% d => d[2] %}
+# #
+# # Fields
+# #
+# field_block
+#   -> "{" _ field_definitions:? _ "}" {% d => d[2] %}
 
-field_definitions
-  -> field_definition                       {% d => [d[0]] %}
-  |  field_definition __ field_definitions  {% d => [d[0], ...d[2]] %}
+# field_definitions
+#   -> field_definition                       {% d => [d[0]] %}
+#   |  field_definition __ field_definitions  {% d => [d[0], ...d[2]] %}
 
-field_definition
-  -> identifier _ argument_block:? _ ":" _ type _ function_implementation_block:?
-    {% d => ({ name: d[0], args: d[2], type: d[6], impl: d[8] }) %}
+# field_definition
+#   -> identifier _ argument_block:? _ ":" _ type _ function_implementation_block:?
+#     {% d => ({ name: d[0], args: d[2], type: d[6], impl: d[8] }) %}
 
-#
-# Arguments
-#
-argument_block
-  -> "(" _ arguments:? _ ")" {% d => d[2] %}
+# #
+# # Arguments
+# #
+# argument_block
+#   -> "(" _ arguments:? _ ")" {% d => d[2] %}
 
-arguments
-  -> argument                   {% d => [d[0]] %}
-  |  argument _ "," _ arguments {% d => [d[0], ...d[2]] %}
+# arguments
+#   -> argument                   {% d => [d[0]] %}
+#   |  argument _ "," _ arguments {% d => [d[0], ...d[2]] %}
 
-argument
-  -> identifier _ ":" _ type {% d => ({ name: d[0], type: d[4] }) %}
+# argument
+#   -> identifier _ ":" _ type {% d => ({ name: d[0], type: d[4] }) %}
 
-#
-# Directives
-#
-directive
-  -> "@" identifier _ "(" _ key_values:? _ ")" {% d => ({ directive: { [d[1]]: d[5] } }) %}
+# #
+# # Directives
+# #
+# directive
+#   -> "@" identifier _ "(" _ key_values:? _ ")" {% d => ({ directive: { [d[1]]: d[5] } }) %}
 
-key_values
-  -> key_value {% d => [d[0]] %}
-  |  key_value _ key_values {% d => [d[0], ...d[2]] %}
+# key_values
+#   -> key_value {% d => [d[0]] %}
+#   |  key_value _ key_values {% d => [d[0], ...d[2]] %}
 
-key_value
-  -> identifier _ ":" _ value {% d => ({ [d[0]]: d[4] }) %}
+# key_value
+#   -> identifier _ ":" _ value {% d => ({ [d[0]]: d[4] }) %}
 
-value
-  -> dqstring   {% id %}
-  |  sqstring   {% id %}
-  |  int        {% id %}
-  |  jsonfloat  {% id %}
+# value
+#   -> dqstring   {% id %}
+#   |  sqstring   {% id %}
+#   |  int        {% id %}
+#   |  jsonfloat  {% id %}
 
-#
-# Comments
-#
-comment_block
-  -> comments {% d => d[0].join("\n") %}
+# #
+# # Comments
+# #
+# comment_block
+#   -> comments {% d => d[0].join("\n") %}
 
-comments
-  -> comment {% d => [d[0]] %}
-  |  comment _ comments {% d => [d[0], ...d[2]] %}
+# comments
+#   -> comment {% d => [d[0]] %}
+#   |  comment _ comments {% d => [d[0], ...d[2]] %}
 
-comment
-  -> "#" [^\r\n]:* _ {% d => d[1].join("") %}
+# comment
+#   -> "#" [^\r\n]:* _ {% d => d[1].join("") %}
+
 
 #########################
+
 
 # json -> _ (object | array) _ {% function(d) { return d[1][0]; } %}
 

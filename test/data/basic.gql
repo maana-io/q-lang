@@ -1,8 +1,8 @@
 mutation {
   addLogicService(input: {
     id: "maana-parser-test"
-    name: "Parser Test"
-    description: "This is a description"
+    name: "maana-parser-test"
+    description: "maana-parser-test"
     addTypes: [
       {
         name: "[object Object]"
@@ -17,28 +17,11 @@ expressionType: TYPE
 detail: {"required":{"type":"String","parameters":null}}
                 }
               }
-            ]
-          }
-        }
-      }
-      {
-        name: "[object Object]"
-        signature: {
-          signatureType: PRODUCT
-          product: {
-            fields: [
               {
-                name: "id"
+                name: "dob"
                 type: {
 expressionType: TYPE
-detail: {"type":"ID","parameters":null}
-                }
-              }
-              {
-                name: "width"
-                type: {
-expressionType: TYPE
-detail: {"required":{"type":"Float","parameters":null}}
+detail: {"type":"Date","parameters":null}
                 }
               }
             ]
@@ -47,9 +30,6 @@ detail: {"required":{"type":"Float","parameters":null}}
       }
     ]
     addFunctions: [
-      {
-        name: "baz"
-      }
     ]
   })
   { id }

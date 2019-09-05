@@ -80,12 +80,16 @@ const mkObjectFromCollections = cols => {
 
 
 start
-  -> _
+  -> _ words _
     {% d => {
-      console.log('start ->', JSON.stringify(d, null, 2))
-      return Object.assign({}, d[1], mkObjectFromCollections(d[0])) 
+      // console.log('start ->', JSON.stringify(d, null, 2))
+      return d[1]
+      //return Object.assign({}, d[1], mkObjectFromCollections(d[0])) 
     } %}
-words -> (_ %WORD):* {% id %}
+
+words
+  -> %WORD {% d => d[0].value %}
+   | words ws %WORD {% d => [...d[0], d[2].value] %}
 
 #
 # Service directive
@@ -208,11 +212,11 @@ description_arg
 # Whitespace
 #
 _
-  -> ws:? {% d => { console.log('_', d); return null } %}
+  -> ws:?
 
 ws
-  -> %WS {% d => { console.log('%WS', d); return null } %}
-   | %WS:? %COMMENT _ {% d => { console.log('comment', d); return ({ comment: d[1].value }) } %}
+  -> %WS
+   | %WS:? %COMMENT _
 
 ######################
 

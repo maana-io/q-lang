@@ -1,0 +1,43 @@
+{
+  "service": {},
+  "import": [
+    "test"
+  ],
+  "include": [
+    "other.q"
+  ],
+  "function": [
+    {
+      "name": "omg",
+      "params": [
+        "jo",
+        "ko"
+      ],
+      "directive": {},
+      "body": {
+        "type": "BlockStatement",
+        "body": []
+      }
+    }
+  ],
+  "interface": [
+    {
+      "name": "IUnknown",
+      "directive": {},
+      "body": {
+        "type": "BlockStatement",
+        "body": []
+      }
+    }
+  ],
+  "type": [
+    {
+      "name": "Person",
+      "directive": {},
+      "body": {
+        "type": "BlockStatement",
+        "body": []
+      }
+    }
+  ]
+}

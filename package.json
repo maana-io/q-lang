@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
+    "peg-qlang": "pegjs -o src/grammar.js grammars/qlang.pegjs",
     "gen-qlang": "nearleyc grammars/qlang.ne -o src/grammar.js",
     "gen-zed": "nearleyc grammars/zed.ne -o src/grammar.js",
     "serve": "NODE_ENV=PRODUCTION node src/index.js",
@@ -30,6 +31,8 @@
     "minimist": "^1.2.0",
     "moo": "^0.5.0",
     "mz": "^2.7.0",
-    "nearley": "^2.19.0"
+    "nearley": "^2.19.0",
+    "node-json-color-stringify": "^1.1.0",
+    "pegjs": "^0.10.0"
   }
 }

@@ -1,0 +1,142 @@
+[
+  {
+    "schema": {
+      "name": "PhoneDB",
+      "declarations": [
+        {
+          "declaration": {
+            "contact": "String"
+          }
+        },
+        {
+          "declaration": {
+            "phone": "String"
+          }
+        }
+      ],
+      "predicates": [
+        {
+          "true": true
+        },
+        {
+          "false": false
+        },
+        {
+          "not": {
+            "p": {
+              "true": true
+            }
+          }
+        },
+        {
+          "and": {
+            "p": {
+              "true": true
+            },
+            "q": {
+              "false": false
+            }
+          }
+        },
+        {
+          "or": {
+            "p": {
+              "false": false
+            },
+            "q": {
+              "true": true
+            }
+          }
+        },
+        {
+          "iff": {
+            "p": {
+              "true": true
+            },
+            "q": {
+              "false": false
+            }
+          }
+        },
+        {
+          "implies": {
+            "p": {
+              "false": false
+            },
+            "q": {
+              "true": true
+            }
+          }
+        },
+        {
+          "true": true
+        },
+        {
+          "not": {
+            "p": {
+              "not": {
+                "p": {
+                  "and": {
+                    "p": {
+                      "or": {
+                        "p": {
+                          "not": {
+                            "p": {
+                              "true": true
+                            }
+                          }
+                        },
+                        "q": {
+                          "not": {
+                            "p": {
+                              "false": false
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "q": {
+                      "not": {
+                        "p": {
+                          "or": {
+                            "p": {
+                              "not": {
+                                "p": {
+                                  "false": false
+                                }
+                              }
+                            },
+                            "q": {
+                              "not": {
+                                "p": {
+                                  "true": true
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  {
+    "schema": {
+      "name": "Contact",
+      "declarations": [
+        {
+          "declaration": {
+            "name": "String"
+          }
+        }
+      ],
+      "predicates": null
+    }
+  }
+]

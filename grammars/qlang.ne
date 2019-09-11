@@ -1,15 +1,18 @@
 #
 # Maana Q Language Grammar
 #
+
+
+##############################
+
+
+# Lexer
 @{%
 
 const moo = require('moo')
 
 let lexer = moo.compile({
-    id: /[a-zA-Z0-9]+/,
-    space: {match: /\s+/, lineBreaks: true},
-    number: /-?(?:[0-9]|[1-9][0-9]+)(?:\.[0-9]+)?(?:[eE][-+]?[0-9]+)?\b/,
-    string: /"(?:\\["bfnrt\/\\]|\\u[a-fA-F0-9]{4}|[^"\\])*"/,
+    // Literals
     '{': '{',
     '}': '}',
     '[': '[',
@@ -18,54 +21,250 @@ let lexer = moo.compile({
     '>': '>',
     '(': '(',
     ')': ')',
+    '@': '@',
+    '&': '&',
     ',': ',',
     ':': ':',
     '=': '=',
     '=>': '=>',
-    true: 'true',
-    false: 'false',
-    null: 'null',
-    type: 'type'
+    TRUE: 'true',
+    FALSE: 'false',
+    NULL: 'null',
+    SERVICE: 'service',
+    ID: 'id',
+    NAME: 'name',
+    DESCRIPTION: 'description',
+    IMPORT: 'import',
+    AS: 'as',
+    INCLUDE: 'include',
+    INTERFACE: 'interface',
+    TYPE: 'type',
+    IMPLEMENTS: 'implements',
+    FUNCTION: 'function',
+    // Regular expressions
+    WS: {match: /\s+/, lineBreaks: true},
+    COMMENT: /\#.*/,
+    WORD: /[\-\.\w\?\+]+/,
+    NUMBER: /-?(?:[0-9]|[1-9][0-9]+)(?:\.[0-9]+)?(?:[eE][-+]?[0-9]+)?\b/,
+    STRING: /"(?:\\["bfnrt\/\\]|\\u[a-fA-F0-9]{4}|[^"\\])*"/,
 })
 
 %}
 
 @lexer lexer
 
+@{%
+const mkObjectFromPairs = pairs => {
+  const obj = {}
+  pairs.forEach(x => obj[Object.keys(x)[0]] = Object.values(x)[0] )
+  return obj
+}
+
+const mkObjectFromCollections = cols => {
+  if (!cols) return
+  const obj = {}
+  cols.forEach(x => {
+    const key = Object.keys(x)[0]
+    const value = x[key]
+    let col = obj[key]
+    if (!col) {
+      col = obj[key] = []
+    }
+    col.push(value)
+  })
+  return obj
+}
+%}
+
+######################
+
+
+start
+  -> _ words _
+    {% d => {
+      // console.log('start ->', JSON.stringify(d, null, 2))
+      return d[1]
+      //return Object.assign({}, d[1], mkObjectFromCollections(d[0])) 
+    } %}
+
+words
+  -> %WORD {% d => d[0].value %}
+   | words ws %WORD {% d => [...d[0], d[2].value] %}
+
+#
+# Service directive
+#
+service_directive
+  -> "@" _ %SERVICE _ "(" service_directive_args _ ")" 
+    {% d =>({ service: mkObjectFromPairs(d[5]) }) %}
+
+service_directive_args
+  -> _ service_directive_arg {% d => [d[1]] %}
+   | service_directive_args ws service_directive_arg {% d => [...d[0], d[2]] %}
+
+service_directive_arg
+  -> id_arg {% id %}
+   | name_arg {% id %}
+   | description_arg {% id %}
+
+#
+# Statements
+#
+statements
+  -> _ statement {% d => { console.log("s", d); return [d[1]] } %}
+   | statements ws statement {% d=> { console.log("ss", d); return [...d[0], d[2]] } %}
+
+statement
+  -> _ {% d => { console.log('statement', d); return d[0] } %}
+     | service_directive {% id %}
+  #  | import_statement {% id %}
+  #  | include_statement {% id %}
+  #  | interface_statement {% id %}
+  #  | type_statement {% id %}
+   | function_statement {% id %}
+
+#
+# Import statement
+#
+import_statement
+  -> %IMPORT ws %WORD import_as:? import_selector_block:? 
+    {% d => ({ imports: { service: d[2].value, alias: d[3], selectors: d[4] }}) %}
+
+import_as
+  -> ws %AS ws %WORD {% d => d[3].value %}
+
+import_selector_block
+  -> _ "{" import_selectors:? _ "}" {% d => d[2] %}
+
+import_selectors
+  -> import_selector {% d => [d[0]] %}
+   | import_selectors ws import_selector {% d => [...d[0], d[2]] %}
+
+import_selector
+  -> _ %WORD {% d => d[1].value %}
+
+#
+# Include statement
+#
+include_statement
+  -> %INCLUDE ws %WORD {% d => ({ includes: d[2].value }) %}
+
+#
+# Interface statement
+#
+interface_statement
+  -> %INTERFACE ws %WORD {% d => ({ interfaces: d[2].value }) %}
+
+#
+# Type statement
+#
+type_statement
+  -> %TYPE ws %WORD {% d => ({ types: d[2].value }) %}
+
+#
+# Function statement
+#
+function_statement
+  -> %FUNCTION ws field {% d => ({ functions: d[2] }) %}
+
+field
+  -> %WORD {% d => ({ name: d[0].value, args: d[1] }) %}
+  # -> %WORD function_argument_block:? {% d => ({ name: d[0].value, args: d[1] }) %}
+
+function_argument_block
+  -> _ "(" _ arguments:? _ ")" {% d => d[3] %}
+
+arguments
+  -> argument {% d => [d[0]] %}
+   | arguments _ "," _ argument {% d => [...d[0], d[4]] %}
+
+argument
+  -> _ %WORD _ ":" _ wrapped_type {% d => ({ arg: d[1].value, type: d[5] }) %}
+
+wrapped_type
+  -> %WORD type_parameter_block:? {% d => ({ type: d[0].value, params: d[1] }) %}
+   | wrapped_type _ "!" {% d => ({ required: d[0] }) %}
+   | "[" _ wrapped_type _ "]" {% d => ({ array: d[2] }) %}
+
+type_parameter_block
+  -> _ "<" type_parameters:? ws ">"
+
+type_parameters
+  -> type_parameter {% d => [d[0]] %}
+   | type_parameters _ "," _ type_parameter {% d => [...d[0], d[4]] %}
+
+type_parameter
+  -> %WORD {% d => d[0].value %}
+
+#
+# Directive arguments
+#
+id_arg
+  -> %ID _ ":" _ %STRING {% d => ({ id: d[4].value }) %}
+
+name_arg
+  -> %NAME _ ":" _ %STRING {% d => ({ name: d[4].value }) %}
+
+description_arg
+  -> %DESCRIPTION _ ":" _ %STRING {% d => ({ description: d[4].value }) %} 
+
+#
+# Whitespace
+#
+_
+  -> ws:?
+
+ws
+  -> %WS
+   | %WS:? %COMMENT _
+
+######################
+
+
 # @include "identifier.ne"
 # @include "number.ne"
 # @include "string.ne"
 # @include "whitespace.ne"
 
+
+##################
+
+
 # s -> %lit:+ {% id %}
 
-start -> type_def:* _ {% d => d[0] %}
 
-type_def
-  -> _ "type" _ con_type {% d => d[3] %}
+###################
 
-con_type
-  -> identifier con_block:? field_block {% d => ({ id: d[0], type_parameters: d[1], fields: d[2] }) %}
 
-con_block
-  -> _ "<" cons:+ _ ">" {% d => d[2] %}
+# start -> type_def:* _ {% d => d[0] %}
 
-cons
-  -> _ identifier                     {% d => ({ type: d[1] })  %}
-  |  _ identifier _ "=" _ identifier {% d => ({ type: d[1], extends: d[5] }) %}
+# type_def
+#   -> _ "type" _ con_type {% d => d[3] %}
 
-field_block
-  -> _ "{" field:* _ "}" {% d => d[2] %}
+# con_type
+#   -> identifier con_block:? field_block {% d => ({ id: d[0], type_parameters: d[1], fields: d[2] }) %}
 
-field
-  -> _ identifier _ ":" _ identifier {% d => ({ name: d[1], type: d[5] }) %}
+# con_block
+#   -> _ "<" cons:+ _ ">" {% d => d[2] %}
 
-identifier
-  -> %id {% d => d[0].value %}
+# cons
+#   -> _ identifier                     {% d => ({ type: d[1] })  %}
+#   |  _ identifier _ "=" _ identifier {% d => ({ type: d[1], extends: d[5] }) %}
 
-_ -> null | %space {% () => null %}
+# field_block
+#   -> _ "{" field:* _ "}" {% d => d[2] %}
 
-# Root document
+# field
+#   -> _ identifier _ ":" _ identifier {% d => ({ name: d[1], type: d[5] }) %}
+
+# identifier
+#   -> %id {% d => d[0].value %}
+
+# _ -> null | %space {% () => null %}
+
+##############
+
+# # Root document
 # input
 #   -> _ preamble __ definitions _ {% d => ({ ...d[1], definitions: d[3] }) %}
 
@@ -92,12 +291,12 @@ _ -> null | %space {% () => null %}
 # # Service declaration
 # # - every compilation unit must have a service or extends service declaration
 # service
-#   -> comment_block:? "service" __ service_identifier _ service_directive:? 
+#   -> "service" __ service_identifier _ service_directive:? 
 #     {% d => ({
 #       service: { 
-#         id: d[3],
-#         name: d[3],
-#         description: d[0],
+#         id: d[2],
+#         name: d[2],
+#         description: d[2],
 #         ...d[5] // override with directives
 #         }
 #     }) %}
@@ -115,15 +314,16 @@ _ -> null | %space {% () => null %}
 #   |  service_directive_arg _ "," _ service_directive_args {% d => [d[0], ...d[4]] %}
 
 # service_directive_arg
-#   -> "name" _ ":" _ dqstring        {% d => ({ name: d[4] }) %}
+#   -> "id" _ ":" _ dqstring          {% d => ({ name: d[4] }) %}
+#   |  "name" _ ":" _ dqstring        {% d => ({ name: d[4] }) %}
 #   |  "description" _ ":" _ dqstring {% d => ({ description: d[4] }) %}
 
 # #
 # # Imports
 # #
 # imports
-#   -> comment_block:? _ import             {% d => [d[2]] %}
-#   |  comment_block:? _ import __ imports  {% d => [d[2], ...d[4]] %}
+#   -> import             {% d => [d[0]] %}
+#   |  import __ imports  {% d => [d[0], ...d[2]] %}
 
 # import
 #   -> "import" __ import_identifier import_as:? __ import_selector_block
@@ -178,8 +378,8 @@ _ -> null | %space {% () => null %}
 #   -> "=>" _ parameterized_type {% d => d[2] %}
 
 # type_implements
-#   -> "implements" __ parameterized_type           {% d => [d[2]] %}
-#   |  type_implements _ "&" _ parameterized_type   {% d => [...d[0], d[4]] %}
+#   -> "implements" __ parameterized_type (_ "&" _ parameterized_type):*
+#     {% d => { console.log('impl', d); return [d[2], ...d[3].map(x => x[3])] } %}
 
 # # Parameterized types appear on the right side of field definitions, arguments,
 # # and 'implements' expressions
@@ -220,7 +420,7 @@ _ -> null | %space {% () => null %}
 # # Fields
 # #
 # field_block
-#   -> "{" _ field_definitions _ "}" {% d => d[2] %}
+#   -> "{" _ field_definitions:? _ "}" {% d => d[2] %}
 
 # field_definitions
 #   -> field_definition                       {% d => [d[0]] %}
@@ -237,8 +437,8 @@ _ -> null | %space {% () => null %}
 #   -> "(" _ arguments:? _ ")" {% d => d[2] %}
 
 # arguments
-#   -> argument               {% d => [d[0]] %}
-#   |  argument __ arguments  {% d => [d[0], ...d[2]] %}
+#   -> argument                   {% d => [d[0]] %}
+#   |  argument _ "," _ arguments {% d => [d[0], ...d[2]] %}
 
 # argument
 #   -> identifier _ ":" _ type {% d => ({ name: d[0], type: d[4] }) %}
@@ -273,7 +473,10 @@ _ -> null | %space {% () => null %}
 #   |  comment _ comments {% d => [d[0], ...d[2]] %}
 
 # comment
-#   -> "#" [^\r\n]:* __ {% d => d[1].join("") %}
+#   -> "#" [^\r\n]:* _ {% d => d[1].join("") %}
+
+
+#########################
 
 
 # json -> _ (object | array) _ {% function(d) { return d[1][0]; } %}

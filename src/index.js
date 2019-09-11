@@ -1,3 +1,4 @@
+require("node-json-color-stringify");
 const path = require("path");
 const fs = require("mz/fs");
 const parseArgs = require("minimist");
@@ -32,18 +33,17 @@ const main = async () => {
   const input = (await fs.readFile(inputFilename)).toString();
 
   // Parse (i.e., generate an AST)
-  const parseResults = await parser.parse(input);
-  const ast = parseResults[0];
-  console.log("ast", ast);
+  const ast = await parser.parse(input);
+  console.log("ast", JSON.colorStringify(ast, null, 2));
 
   // Persist the AST
   await fs.writeFile(astFilename, JSON.stringify(ast, null, 2));
 
   // Generate Q service request (GraphQL)
-  const gql = await genQService.generate(ast);
+  // const gql = await genQService.generate(ast);
 
   // Persist the GraphQL
-  await fs.writeFile(gqlFilename, gql);
+  // await fs.writeFile(gqlFilename, gql);
 };
 
 main();

@@ -69,21 +69,53 @@
 // ----------------------------------------------------------------------------
 
 Start
-  = __ service:Service __ { return service; }
+  = __ service:Service __ { return service }
 
 Service
   = directive:ServiceDirective __ els:ServiceElements? {
-      return {
-        service: directive,
-        ...mkObjectFromCollections(els)
-      }
+      console.log('els', JSON.stringify(els))
+      let res = [directive]
+      if (els) res = res.concate(els)
+      return res
     }
 
 ServiceDirective
-  = "@" ServiceToken __ "(" __ ")" {
-    return {}
+  = "@" ServiceToken __ "(" __ params:(DirectiveParameterList __)? ")" {
+    return {
+      type: "ServiceDirective",
+      parameters: optionalList(extractOptional(params, 0))
+    }
   }
 
+
+DirectiveParameterList
+  = head:Parameter tail:(__ Parameter)* {
+      return buildList(head, tail, 1);
+    }
+
+Parameter
+  = key:Identifier __ ":" __ value:Value {
+      return {
+        type: "Parameter",
+        key,
+        value
+      }
+    }
+
+Value
+  = Literal
+  / "[" __ values:(ValueList __)? "]" {    
+    return {
+      type: "Array",
+      values: optionalList(extractOptional(values, 0))
+    }
+  }
+
+ValueList
+  = head:Value tail:(__ "," __ Value)* {
+    return buildList(head, tail, 3)
+  }
+  
 ServiceElements
   = head:ServiceElement tail:(__ ServiceElement)* {
       return buildList(head, tail, 1);
@@ -458,31 +490,31 @@ Literal
   / RegularExpressionLiteral
 
 NullLiteral
-  = NullToken { return { Null: nulll } }
+  = NullToken { return { type: "NullLiteral", value: null } }
 
 BooleanLiteral
-  = TrueToken  { return { True: true  } }
-  / FalseToken { return { False: false } }
+  = TrueToken  { return { type: "BooleanLiteral", value: true  } }
+  / FalseToken { return { type: "BooleanLiteral", value: false } }
 
 // The "!(IdentifierStart / DecimalDigit)" predicate is not part of the official
 // grammar, it comes from text in section 7.8.3.
 NumericLiteral "number"
   = literal:HexIntegerLiteral !(IdentifierStart / DecimalDigit) {
-      return literal;
+      return { type: "NumericLiteral", value: literal };
     }
   / literal:DecimalLiteral !(IdentifierStart / DecimalDigit) {
-      return literal;
+      return { type: "NumericLiteral", value: literal };
     }
 
 DecimalLiteral
   = DecimalIntegerLiteral "." DecimalDigit* ExponentPart? {
-      return { Float: parseFloat(text()) };
+      return { type: "DecimalLiteral", value: parseFloat(text()) };
     }
   / "." DecimalDigit+ ExponentPart? {
-      return { Float: parseFloat(text()) };
+      return { type: "DecimalLiteral", value: parseFloat(text()) };
     }
   / DecimalIntegerLiteral ExponentPart? {
-      return { Float: parseFloat(text()) };
+      return { type: "DecimalLiteral", value: parseFloat(text()) };
     }
 
 DecimalIntegerLiteral

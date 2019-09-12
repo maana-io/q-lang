@@ -1,0 +1,108 @@
+[
+  {
+    "type": "ServiceDirective",
+    "parameters": [
+      {
+        "type": "Parameter",
+        "key": "id",
+        "value": {
+          "String": "io.maana.logic.goodexamples"
+        }
+      },
+      {
+        "type": "Parameter",
+        "key": "name",
+        "value": {
+          "String": "Rig Examples"
+        }
+      },
+      {
+        "type": "Parameter",
+        "key": "description",
+        "value": {
+          "String": "A mock logical service for reasoning about rigs and equipment"
+        }
+      },
+      {
+        "type": "Parameter",
+        "key": "thumbnailUrl",
+        "value": {
+          "type": "NullLiteral",
+          "value": null
+        }
+      },
+      {
+        "type": "Parameter",
+        "key": "isSystem",
+        "value": {
+          "type": "BooleanLiteral",
+          "value": false
+        }
+      },
+      {
+        "type": "Parameter",
+        "key": "isReadOnly",
+        "value": {
+          "type": "BooleanLiteral",
+          "value": false
+        }
+      },
+      {
+        "type": "Parameter",
+        "key": "tags",
+        "value": {
+          "type": "Array",
+          "values": [
+            {
+              "String": "example"
+            },
+            {
+              "type": "NumericLiteral",
+              "value": {
+                "type": "DecimalLiteral",
+                "value": 1
+              }
+            },
+            {
+              "type": "NumericLiteral",
+              "value": {
+                "type": "DecimalLiteral",
+                "value": 3.14
+              }
+            },
+            {
+              "type": "NullLiteral",
+              "value": null
+            },
+            {
+              "type": "Array",
+              "values": [
+                {
+                  "type": "NumericLiteral",
+                  "value": {
+                    "type": "DecimalLiteral",
+                    "value": 1
+                  }
+                },
+                {
+                  "type": "NumericLiteral",
+                  "value": {
+                    "type": "DecimalLiteral",
+                    "value": 2
+                  }
+                },
+                {
+                  "type": "NumericLiteral",
+                  "value": {
+                    "type": "DecimalLiteral",
+                    "value": 3
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

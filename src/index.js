@@ -34,6 +34,10 @@ const main = async () => {
 
   // Parse (i.e., generate an AST)
   const ast = await parser.parse(input);
+  if (!ast) {
+    console.log("Failed to parse input and generate an AST");
+    return;
+  }
   console.log("ast", JSON.colorStringify(ast, null, 2));
 
   // Persist the AST

@@ -1,56 +1,5 @@
 # Based on https://bitbucket.corp.maana.io/projects/H4/repos/new-ckg/browse/catalog-service/src/test/tests/functionGraph/addFunctionGraph.ts
 
-###
-
-import { AddLogicServiceTransaction } from "../../../transaction/addLogicServiceTx"
-import { InMemoryStore } from "../../../store/inMemoryStore"
-import {
-  AddLogicServiceInput,
-  AddNamedTypeInput,
-  SignatureType,
-  AddCKGFunctionInput,
-  OfTypeSignatureType,
-  LocType,
-  TypeExpressionInput,
-  GraphQLFunctionType,
-  ImplementationTypeInput,
-  GraphRefInputType,
-  LocInput
-} from "../../../schemas/gen-types"
-import {
-  AddLocationEffect,
-  AddTypeEffect,
-  AddFunctionEffect,
-  AddFunctionGraphNodeEffect,
-  AddFunctionGraphConnectionEffect,
-  AddServiceEffect
-} from "../../../store/effects"
-import { BootstrapCatalogTransaction } from "../../../transaction/bootstrapCatalogTx"
-import { Store } from "../../../store/store"
-import { GEO_SERVICE_ID, geoCoordinateServiceInput } from "../../data/geoService"
-import { ID } from "../../../model/common"
-import { SubgraphNode } from "../../../model/implementation"
-
-###
-
-### 
-
-const RIG_SERVICE_ID = "io.maana.logic.goodexamples"
-
-const logicServiceTemplate: AddLogicServiceInput = {
-  id: RIG_SERVICE_ID,
-  name: "Rig Examples",
-  description: "A mock logical service for reasoning about rigs and equipment",
-  thumbnailUrl: null,
-  isSystem: false,
-  isReadOnly: false,
-  tags: ["example"],
-  addTypes: [],
-  addFunctions: []
-}
-
-###
-
 @service(
   id: "io.maana.logic.goodexamples"
   name: "Rig Examples"
@@ -58,206 +7,22 @@ const logicServiceTemplate: AddLogicServiceInput = {
   thumbnailUrl: null
   isSystem: false
   isReadOnly: false
-  tags: ["example", 1, 3.14, null, [1,2,3]]
+  tags: ["example"]
 )
 
-###
+scalar Phone        @scalar(description: "A phone number")
+scalar Pressure     @scalar(description: "A pressure in PSIG")
+scalar TrainingData @scalar(description: "A dummy training datapoint for a failure model")
 
-function connectFromOperationResultToOperationArgument(
-  resultOpId: ID,
-  argumentOpId: ID,
-  argumentName: string
-) {
-  return {
-    from: {
-      graphRefInputType: GraphRefInputType.OPERATION_RESULT,
-      operationResult: resultOpId
-    },
-    to: {
-      graphRefInputType: GraphRefInputType.OPERATION_ARGUMENT,
-      operationArgument: {
-        operation: argumentOpId,
-        argument: argumentName
-      }
-    }
-  }
-}
-
-function connectionFromArgumentToOperationArgument(
-  argument: string,
-  argumentOpId: ID,
-  argumentName: string
-) {
-  return {
-    from: {
-      graphRefInputType: GraphRefInputType.ARGUMENT,
-      argumentRef: argument
-    },
-    to: {
-      graphRefInputType: GraphRefInputType.OPERATION_ARGUMENT,
-      operationArgument: {
-        operation: argumentOpId,
-        argument: argumentName
-      }
-    }
-  }
-}
-
-const MapFunctionLocator: LocInput = {
-  locType: LocType.ID,
-  id: "map"
-}
-
-const BooleanRef: TypeExpressionInput = {
-  expressionType: OfTypeSignatureType.SCALAR,
-  scalar: {
-    locType: LocType.ID,
-    id: "Boolean"
-  }
-}
-const DoubleRef: TypeExpressionInput = {
-  expressionType: OfTypeSignatureType.SCALAR,
-  scalar: {
-    locType: LocType.ID,
-    id: "Double"
-  }
-}
-const IDRef: TypeExpressionInput = {
-  expressionType: OfTypeSignatureType.SCALAR,
-  scalar: {
-    locType: LocType.ID,
-    id: "ID"
-  }
-}
-const LongRef: TypeExpressionInput = {
-  expressionType: OfTypeSignatureType.SCALAR,
-  scalar: {
-    locType: LocType.ID,
-    id: "Long"
-  }
-}
-const StringRef: TypeExpressionInput = {
-  expressionType: OfTypeSignatureType.SCALAR,
-  scalar: {
-    locType: LocType.ID,
-    id: "String"
-  }
-}
-
-const AssetRef: TypeExpressionInput = {
-  expressionType: OfTypeSignatureType.TYPE,
-  type: {
-    locType: LocType.THIS_SVC,
-    name: "Asset"
-  }
-}
-const Example6ResultRef: TypeExpressionInput = {
-  expressionType: OfTypeSignatureType.TYPE,
-  type: {
-    locType: LocType.THIS_SVC,
-    name: "Example6Result"
-  }
-}
-const EquipmentRef: TypeExpressionInput = {
-  expressionType: OfTypeSignatureType.TYPE,
-  type: {
-    locType: LocType.THIS_SVC,
-    name: "Equipment"
-  }
-}
-const ManufacturerRef: TypeExpressionInput = {
-  expressionType: OfTypeSignatureType.TYPE,
-  type: {
-    locType: LocType.THIS_SVC,
-    name: "Manufacturer"
-  }
-}
-const PersonRef: TypeExpressionInput = {
-  expressionType: OfTypeSignatureType.TYPE,
-  type: {
-    locType: LocType.THIS_SVC,
-    name: "Person"
-  }
-}
-const RigRef: TypeExpressionInput = {
-  expressionType: OfTypeSignatureType.TYPE,
-  type: {
-    locType: LocType.THIS_SVC,
-    name: "Rig"
-  }
-}
-
-const PhoneRef: TypeExpressionInput = {
-  expressionType: OfTypeSignatureType.SCALAR,
-  scalar: {
-    locType: LocType.THIS_SVC,
-    name: "Phone"
-  }
-}
-const PressureRef: TypeExpressionInput = {
-  expressionType: OfTypeSignatureType.SCALAR,
-  scalar: {
-    locType: LocType.THIS_SVC,
-    name: "Pressure"
-  }
-}
-const TrainingDataRef: TypeExpressionInput = {
-  expressionType: OfTypeSignatureType.SCALAR,
-  scalar: {
-    locType: LocType.THIS_SVC,
-    name: "TrainingData"
-  }
-}
-
-const LengthRef: TypeExpressionInput = {
-  expressionType: OfTypeSignatureType.SCALAR,
-  scalar: {
-    locType: LocType.NAME_AND_SVC,
-    serviceId: GEO_SERVICE_ID,
-    name: "Length"
-  }
-}
-const LocationRef: TypeExpressionInput = {
-  expressionType: OfTypeSignatureType.TYPE,
-  type: {
-    locType: LocType.NAME_AND_SVC,
-    serviceId: GEO_SERVICE_ID,
-    name: "Location"
-  }
+type Person @type(description: "A person")
+{
+  id:     ID!     @field(description: "A unique descriptor")
+  name:   String! @field(description: "A unique human readable descriptor")
+  phone:  Phone   @field(description: "A person's primary phone number")
 }
 
 ###
 
-
-###
-const addTypeInputs: AddNamedTypeInput[] = [
-  // Add the scalar phone number type.
-  {
-    name: "Phone",
-    description: "A phone number",
-    signature: {
-      signatureType: SignatureType.SCALAR,
-      scalar: { id: `${RIG_SERVICE_ID}:Phone` }
-    }
-  },
-  // Add the Pressure scalar type
-  {
-    name: "Pressure",
-    description: "A pressure in PSIG",
-    signature: {
-      signatureType: SignatureType.SCALAR,
-      scalar: { id: `${RIG_SERVICE_ID}:Pressure` }
-    }
-  },
-  // Add the TrainingData scalar type
-  {
-    name: "TrainingData",
-    description: "A dummy training datapoint for a failure model",
-    signature: {
-      signatureType: SignatureType.SCALAR,
-      scalar: { id: `${RIG_SERVICE_ID}:TrainingData` }
-    }
-  },
   // Add the "Person" Product type.
   {
     name: "Person",

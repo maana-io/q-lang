@@ -9,10 +9,6 @@ import {
   TypeExpressionInput
 } from "../../schemas/gen-types"
 
-###
-
-###
-
 export const GEO_SERVICE_ID = "io.maana.logic.geocoord"
 
 // Service Definition
@@ -110,4 +106,4 @@ const geoCoordTypes: AddNamedTypeInput[] = [
   }
 ]
 
-"""
+###

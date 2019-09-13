@@ -1,33 +1,36 @@
-[
-  {
+{
+  "service": {
     "type": "ServiceDirective",
     "parameters": [
       {
         "type": "Parameter",
         "key": "id",
         "value": {
-          "String": "io.maana.logic.goodexamples"
+          "type": "String",
+          "value": "io.maana.logic.goodexamples"
         }
       },
       {
         "type": "Parameter",
         "key": "name",
         "value": {
-          "String": "Rig Examples"
+          "type": "String",
+          "value": "Rig Examples"
         }
       },
       {
         "type": "Parameter",
         "key": "description",
         "value": {
-          "String": "A mock logical service for reasoning about rigs and equipment"
+          "type": "String",
+          "value": "A mock logical service for reasoning about rigs and equipment"
         }
       },
       {
         "type": "Parameter",
         "key": "thumbnailUrl",
         "value": {
-          "type": "NullLiteral",
+          "type": "Null",
           "value": null
         }
       },
@@ -35,7 +38,7 @@
         "type": "Parameter",
         "key": "isSystem",
         "value": {
-          "type": "BooleanLiteral",
+          "type": "Boolean",
           "value": false
         }
       },
@@ -43,7 +46,7 @@
         "type": "Parameter",
         "key": "isReadOnly",
         "value": {
-          "type": "BooleanLiteral",
+          "type": "Boolean",
           "value": false
         }
       },
@@ -54,55 +57,65 @@
           "type": "Array",
           "values": [
             {
-              "String": "example"
-            },
-            {
-              "type": "NumericLiteral",
-              "value": {
-                "type": "DecimalLiteral",
-                "value": 1
-              }
-            },
-            {
-              "type": "NumericLiteral",
-              "value": {
-                "type": "DecimalLiteral",
-                "value": 3.14
-              }
-            },
-            {
-              "type": "NullLiteral",
-              "value": null
-            },
-            {
-              "type": "Array",
-              "values": [
-                {
-                  "type": "NumericLiteral",
-                  "value": {
-                    "type": "DecimalLiteral",
-                    "value": 1
-                  }
-                },
-                {
-                  "type": "NumericLiteral",
-                  "value": {
-                    "type": "DecimalLiteral",
-                    "value": 2
-                  }
-                },
-                {
-                  "type": "NumericLiteral",
-                  "value": {
-                    "type": "DecimalLiteral",
-                    "value": 3
-                  }
-                }
-              ]
+              "type": "String",
+              "value": "example"
             }
           ]
         }
       }
     ]
-  }
-]
+  },
+  "elements": [
+    {
+      "type": "Scalar",
+      "name": "Phone",
+      "directive": {
+        "type": "ScalarDirective",
+        "parameters": [
+          {
+            "type": "Parameter",
+            "key": "description",
+            "value": {
+              "type": "String",
+              "value": "A phone number"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Scalar",
+      "name": "Pressure",
+      "directive": {
+        "type": "ScalarDirective",
+        "parameters": [
+          {
+            "type": "Parameter",
+            "key": "description",
+            "value": {
+              "type": "String",
+              "value": "A pressure in PSIG"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Scalar",
+      "name": "TrainingData",
+      "directive": {
+        "type": "ScalarDirective",
+        "parameters": [
+          {
+            "type": "Parameter",
+            "key": "description",
+            "value": {
+              "type": "String",
+              "value": "A dummy training datapoint for a failure model"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

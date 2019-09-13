@@ -1,0 +1,68 @@
+[
+  {
+    "type": "ServiceDirective",
+    "parameters": [
+      {
+        "type": "Parameter",
+        "key": "id",
+        "value": {
+          "type": "String",
+          "value": "io.maana.logic.geocoord"
+        }
+      },
+      {
+        "type": "Parameter",
+        "key": "name",
+        "value": {
+          "type": "String",
+          "value": "geo-coord"
+        }
+      },
+      {
+        "type": "Parameter",
+        "key": "description",
+        "value": {
+          "type": "String",
+          "value": "A mock logical service for reasoning about geospatial coordinates"
+        }
+      },
+      {
+        "type": "Parameter",
+        "key": "thumbnailUrl",
+        "value": {
+          "type": "String",
+          "value": ""
+        }
+      },
+      {
+        "type": "Parameter",
+        "key": "isSystem",
+        "value": {
+          "type": "Boolean",
+          "value": false
+        }
+      },
+      {
+        "type": "Parameter",
+        "key": "isReadOnly",
+        "value": {
+          "type": "Boolean",
+          "value": false
+        }
+      },
+      {
+        "type": "Parameter",
+        "key": "tags",
+        "value": {
+          "type": "Array",
+          "values": [
+            {
+              "type": "String",
+              "value": "example"
+            }
+          ]
+        }
+      }
+    ]
+  }
+]

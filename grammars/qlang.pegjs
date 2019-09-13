@@ -72,11 +72,11 @@ Start
   = __ service:Service __ { return service }
 
 Service
-  = directive:ServiceDirective __ els:ServiceElements? {
-      console.log('els', JSON.stringify(els))
-      let res = [directive]
-      if (els) res = res.concate(els)
-      return res
+  = service:ServiceDirective __ elements:ServiceElements? {
+      return {
+        service,
+        elements
+      }
     }
 
 ServiceDirective
@@ -86,7 +86,19 @@ ServiceDirective
       parameters: optionalList(extractOptional(params, 0))
     }
   }
+ 
+ServiceElements
+  = head:ServiceElement tail:(__ ServiceElement)* {
+      return buildList(head, tail, 1);
+    }
 
+ServiceElement
+  = Statement
+  / Declaration
+
+// ----------------------------------------------------------------------------
+// Generic Directive Parameters
+// ----------------------------------------------------------------------------
 
 DirectiveParameterList
   = head:Parameter tail:(__ Parameter)* {
@@ -115,15 +127,6 @@ ValueList
   = head:Value tail:(__ "," __ Value)* {
     return buildList(head, tail, 3)
   }
-  
-ServiceElements
-  = head:ServiceElement tail:(__ ServiceElement)* {
-      return buildList(head, tail, 1);
-    }
-
-ServiceElement
-  = Statement
-  / Declaration
 
 // ----------------------------------------------------------------------------
 // Statements
@@ -156,6 +159,7 @@ IncludeStatement
 
 Declaration
   = FunctionDeclaration
+  / ScalarDeclaration
   / InterfaceDeclaration
   / TypeDeclaration
   / UnionDeclaration
@@ -172,12 +176,11 @@ FunctionDeclaration
     "{" __ body:FunctionBody __ "}"
     {
       return { 
-        function: {
-          name,
-          params: optionalList(extractOptional(params, 0)),
-          directive,
-          body
-        }
+        type: "Function",
+        name,
+        params: optionalList(extractOptional(params, 0)),
+        directive,
+        body        
       }
     }
 
@@ -197,6 +200,29 @@ FunctionBody
 FunctionDirective
   = "@" FunctionToken __ "(" ")" {
     return {}
+  }
+
+// ----------------------------------------------------------------------------
+// Scalars
+// ----------------------------------------------------------------------------
+
+ScalarDeclaration
+  = ScalarToken __ name:Identifier __
+    directive:ScalarDirective? __
+    {
+      return { 
+        type: "Scalar",
+        name,
+        directive
+      }
+    }
+
+ScalarDirective
+  = "@" ScalarToken __ "(" __ params:(DirectiveParameterList __)? ")" {
+    return {
+      type: "ScalarDirective",
+      parameters: optionalList(extractOptional(params, 0))
+    }
   }
 
 // ----------------------------------------------------------------------------
@@ -257,8 +283,11 @@ TypeBody
     }
 
 TypeDirective
-  = "@" TypeToken __ "(" ")" {
-    return {}
+  = "@" TypeToken __ "(" __ params:(DirectiveParameterList __)?  ")" {
+    return {
+      type: "TypeDirective",
+      parameters: optionalList(extractOptional(params, 0))
+    }
   }
 
 // ----------------------------------------------------------------------------
@@ -317,6 +346,7 @@ ServiceToken    = "service"     !IdentifierPart
 ImportToken     = "import"      !IdentifierPart
 IncludeToken    = "include"     !IdentifierPart
 FunctionToken   = "function"    !IdentifierPart
+ScalarToken     = "scalar"      !IdentifierPart
 InterfaceToken  = "interface"   !IdentifierPart
 TypeToken       = "type"        !IdentifierPart
 UnionToken      = "union"       !IdentifierPart
@@ -490,31 +520,31 @@ Literal
   / RegularExpressionLiteral
 
 NullLiteral
-  = NullToken { return { type: "NullLiteral", value: null } }
+  = NullToken { return { type: "Null", value: null } }
 
 BooleanLiteral
-  = TrueToken  { return { type: "BooleanLiteral", value: true  } }
-  / FalseToken { return { type: "BooleanLiteral", value: false } }
+  = TrueToken  { return { type: "Boolean", value: true  } }
+  / FalseToken { return { type: "Boolean", value: false } }
 
 // The "!(IdentifierStart / DecimalDigit)" predicate is not part of the official
 // grammar, it comes from text in section 7.8.3.
 NumericLiteral "number"
   = literal:HexIntegerLiteral !(IdentifierStart / DecimalDigit) {
-      return { type: "NumericLiteral", value: literal };
+      return literal;
     }
   / literal:DecimalLiteral !(IdentifierStart / DecimalDigit) {
-      return { type: "NumericLiteral", value: literal };
+      return literal;
     }
 
 DecimalLiteral
   = DecimalIntegerLiteral "." DecimalDigit* ExponentPart? {
-      return { type: "DecimalLiteral", value: parseFloat(text()) };
+      return { type: "Float", value: parseFloat(text()) };
     }
   / "." DecimalDigit+ ExponentPart? {
-      return { type: "DecimalLiteral", value: parseFloat(text()) };
+      return { type: "Float", value: parseFloat(text()) };
     }
   / DecimalIntegerLiteral ExponentPart? {
-      return { type: "DecimalLiteral", value: parseFloat(text()) };
+      return { type: "Float", value: parseFloat(text()) };
     }
 
 DecimalIntegerLiteral
@@ -538,7 +568,7 @@ SignedInteger
 
 HexIntegerLiteral
   = "0x"i digits:$HexDigit+ {
-      return { Int: parseInt(digits, 16) };
+      return { type: "Int", value: parseInt(digits, 16) };
      }
 
 HexDigit
@@ -546,10 +576,10 @@ HexDigit
 
 StringLiteral "string"
   = '"' chars:DoubleStringCharacter* '"' {
-      return { String: chars.join("") };
+      return { type: "String", value: chars.join("") };
     }
   / "'" chars:SingleStringCharacter* "'" {
-      return { String: chars.join("") };
+      return { type: "String", value: chars.join("") };
     }
 
 DoubleStringCharacter

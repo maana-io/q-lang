@@ -68,9 +68,15 @@
 // Top-level rules
 // ----------------------------------------------------------------------------
 
+// This is the head of the entire document.  It accounts for leading and
+// trailing whitespace surrounding the main service definition, which is
+// returned from the parse as the AST.
 Start
   = __ service:Service __ { return service }
 
+// A service definition consists of a @service directive followed by
+// a collection of 0 or more "elements," such as import statements and
+// type definitions.
 Service
   = service:ServiceDirective __ elements:ServiceElements? {
       return {
@@ -87,17 +93,19 @@ ServiceDirective
     }
   }
  
+// A whitespace-separated list of service elements.
 ServiceElements
   = head:ServiceElement tail:(__ ServiceElement)* {
       return buildList(head, tail, 1);
     }
 
+// A service element is either a statement or a declaration
 ServiceElement
   = Statement
   / Declaration
 
 // ----------------------------------------------------------------------------
-// Generic Directive Parameters
+// Directive Parameters
 // ----------------------------------------------------------------------------
 
 DirectiveParameterList
@@ -142,7 +150,7 @@ Statement
 // ----------------------------------------------------------------------------
 ImportStatement
   = ImportToken __ name:StringLiteral {
-      return { import: name.String }
+      return { type: "Import", serviceId: name.String }
     }
 
 // ----------------------------------------------------------------------------
@@ -150,7 +158,7 @@ ImportStatement
 // ----------------------------------------------------------------------------
 IncludeStatement
   = IncludeToken __ name:StringLiteral {
-      return { include: name.String }
+      return { type: "Include", filename: name.String }
     }
 
 // ----------------------------------------------------------------------------
@@ -200,6 +208,41 @@ FunctionBody
 FunctionDirective
   = "@" FunctionToken __ "(" ")" {
     return {}
+  }
+
+// ----------------------------------------------------------------------------
+// GraphQL
+// ----------------------------------------------------------------------------
+
+// A GraphQL type (in this context) is a recursive specification of a
+// type reference with modifiers, such a list and not null.
+GraphQLType
+  = GraphQLNoNull // order is important; see note below
+  / GraphQLTypeRef
+  / GraphQLList
+
+// A simple reference to a GraphQL type, e.g., String, Person
+GraphQLTypeRef
+  = ref:Identifier { 
+    return { type: "GraphQLTypeRef", ref } 
+  }
+
+// A collection of GraphQL type (could be nested, not null)    
+GraphQLList
+  = "[" __ graphQLType:GraphQLType __ "]" { 
+    return { type: "GraphQLList", graphQLType }
+  }
+
+// A modifier indicating that values will never be null
+// NOTE: PEG grammars don't support left recursion, which is why this
+//       grammar looks a bit odd.  Ideally, we'd just reference GraphQLType
+//       rule, but this creates indirect left recursion.
+GraphQLNoNull
+  = graphQLType:GraphQLTypeRef "!" { 
+    return { type: "GraphQLNoNull", graphQLType }
+  }
+  / graphQLType:GraphQLList "!" { 
+    return { type: "GraphQLNoNull", graphQLType }
   }
 
 // ----------------------------------------------------------------------------
@@ -263,29 +306,40 @@ InterfaceDirective
 TypeDeclaration
   = TypeToken __ name:Identifier __
     directive:TypeDirective? __
-    "{" __ body:TypeBody __ "}"
-    {
-      return { 
-        type: {
-          name,
-          directive,
-          body
-        }
-      }
+    "{" __ fields:TypeFields __ "}"
+  {
+    return { 
+      type: "Type",
+      name,
+      directive,
+      fields
     }
-
-TypeBody
-  = body:ServiceElements? {
-      return {
-        type: "BlockStatement",
-        body: optionalList(body)
-      };
-    }
+  }
 
 TypeDirective
   = "@" TypeToken __ "(" __ params:(DirectiveParameterList __)?  ")" {
     return {
       type: "TypeDirective",
+      parameters: optionalList(extractOptional(params, 0))
+    }
+  }
+
+TypeFields
+  = head:TypeField tail:(__ TypeField)* {
+      return buildList(head, tail, 1);
+  }
+
+TypeField
+  = name:Identifier __ ":" __ graphQLType:GraphQLType __
+    directive:FieldDirective? __
+  {
+    return { type: "Field", name, graphQLType, directive }
+  }
+
+FieldDirective
+  = "@" FieldToken __ "(" __ params:(DirectiveParameterList __)?  ")" {
+    return {
+      type: "FieldDirective",
       parameters: optionalList(extractOptional(params, 0))
     }
   }
@@ -349,6 +403,7 @@ FunctionToken   = "function"    !IdentifierPart
 ScalarToken     = "scalar"      !IdentifierPart
 InterfaceToken  = "interface"   !IdentifierPart
 TypeToken       = "type"        !IdentifierPart
+FieldToken      = "field"       !IdentifierPart
 UnionToken      = "union"       !IdentifierPart
 EnumToken       = "enum"        !IdentifierPart
 

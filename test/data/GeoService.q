@@ -1,31 +1,3 @@
-###
-
-import {
-  AddLogicServiceInput,
-  AddNamedTypeInput,
-  SignatureType,
-  OfTypeSignatureType,
-  LocType,
-  TypeExpressionInput
-} from "../../schemas/gen-types"
-
-export const GEO_SERVICE_ID = "io.maana.logic.geocoord"
-
-// Service Definition
-export const geoCoordinateServiceInput: AddLogicServiceInput = {
-  id: GEO_SERVICE_ID,
-  name: "geo-coord",
-  description: "A mock logical service for reasoning about geospatial coordinates",
-  thumbnailUrl: "",
-  isSystem: false,
-  isReadOnly: false,
-  tags: ["example"],
-  addTypes: geoCoordTypes,
-  addFunctions: []
-}
-
-###
-
 @service(
   id: "io.maana.logic.geocoord"
   name: "geo-coord"
@@ -35,6 +7,15 @@ export const geoCoordinateServiceInput: AddLogicServiceInput = {
   isReadOnly: false
   tags: ["example"]
 )
+
+scalar Angle  @scalar(description: "An angular measurement")
+scalar Length @scalar(description: "A length measurement")
+
+type Location @type(description: "A geo-location")
+{
+  longitude:  Angle!  @field(description: "the longitude in degrees")
+  latitude:   Angle!  @field(description: "the latiitude in degrees")
+}
 
 ###
 
@@ -60,23 +41,6 @@ const LocationRef: TypeExpressionInput = {
   }
 }
 
-const geoCoordTypes: AddNamedTypeInput[] = [
-  {
-    name: "Angle",
-    description: "An angular measurement",
-    signature: {
-      signatureType: SignatureType.SCALAR,
-      scalar: { id: `${GEO_SERVICE_ID}:Angle` }
-    }
-  },
-  {
-    name: "Length",
-    description: "A length measurement",
-    signature: {
-      signatureType: SignatureType.SCALAR,
-      scalar: { id: `${GEO_SERVICE_ID}:Length` }
-    }
-  },
   {
     name: "Location",
     description: "A geo-location",

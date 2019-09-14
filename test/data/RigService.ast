@@ -116,6 +116,94 @@
           }
         ]
       }
+    },
+    {
+      "type": "Type",
+      "name": "Person",
+      "directive": {
+        "type": "TypeDirective",
+        "parameters": [
+          {
+            "type": "Parameter",
+            "key": "description",
+            "value": {
+              "type": "String",
+              "value": "A person"
+            }
+          }
+        ]
+      },
+      "fields": [
+        {
+          "type": "Field",
+          "name": "id",
+          "graphQLType": {
+            "type": "GraphQLNoNull",
+            "graphQLType": {
+              "type": "GraphQLTypeRef",
+              "ref": "ID"
+            }
+          },
+          "directive": {
+            "type": "FieldDirective",
+            "parameters": [
+              {
+                "type": "Parameter",
+                "key": "description",
+                "value": {
+                  "type": "String",
+                  "value": "A unique descriptor"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "Field",
+          "name": "name",
+          "graphQLType": {
+            "type": "GraphQLNoNull",
+            "graphQLType": {
+              "type": "GraphQLTypeRef",
+              "ref": "String"
+            }
+          },
+          "directive": {
+            "type": "FieldDirective",
+            "parameters": [
+              {
+                "type": "Parameter",
+                "key": "description",
+                "value": {
+                  "type": "String",
+                  "value": "A unique human readable descriptor"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "Field",
+          "name": "phone",
+          "graphQLType": {
+            "type": "GraphQLTypeRef",
+            "ref": "Phone"
+          },
+          "directive": {
+            "type": "FieldDirective",
+            "parameters": [
+              {
+                "type": "Parameter",
+                "key": "description",
+                "value": {
+                  "type": "String",
+                  "value": "A person's primary phone number"
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   ]
 }

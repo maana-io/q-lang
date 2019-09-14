@@ -1,11 +1,3 @@
 mutation {
   addLogicService(input: {
-    id: "io.maana.logic.geocoord"
-    name: "geo-coord"
-    description: "A mock logical service for reasoning about geospatial coordinates"
-    thumbnailUrl: ""
-    isSystem: false
-    isReadOnly: false
-    tags: ["example"]
-  })
 }

@@ -1,13 +1,11 @@
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Imports
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 require("node-json-color-stringify");
-const fs = require("mz/fs");
-const path = require("path");
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Constants
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 const OfTypeSignatureType = {
   TYPE: "TYPE",
   LIST: "LIST",
@@ -31,9 +29,9 @@ const LocType = {
   THIS_SVC: "THIS_SVC"
 };
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Exported functions
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 // Given an AST, generate the GraphQL query (mutation) needed to add a new logic service
 const generateAddLogicServiceMutationFromAST = ast => {
@@ -46,9 +44,9 @@ const generateAddLogicServiceMutationFromAST = ast => {
   return mutation;
 };
 
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 // Internal functions
-//-----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
 // Build the input object for the addLogicService mutation
 const generateGraphQLInputFromAST = ast => {
@@ -99,8 +97,7 @@ const processImports = state => {
 
 // Generate AddNamedTypeInput objects for each scalar (if any)
 const processScalars = state => {
-  const service = state.service;
-  const scalarsAST = state.index["Scalar"];
+  const scalarsAST = state.index.Scalar;
   if (!scalarsAST) return;
 
   scalarsAST.forEach(scalar => {
@@ -113,11 +110,11 @@ const processScalars = state => {
       signature: {
         signatureType: SignatureType.SCALAR,
         scalar: {
-          id: `${service.id}:${scalar.name}`
+          id: `${state.service.id}:${scalar.name}`
         }
       }
     };
-    service.addTypes.push(input);
+    state.service.addTypes.push(input);
   });
 };
 
@@ -129,8 +126,32 @@ const processInterfaces = state => {
   console.log(`@@TODO: process interfaces`);
 };
 
+const directiveParameters = directive =>
+  directive ? paramsToObject(directive.parameters) : {};
+
 const processTypes = state => {
-  console.log(`@@TODO: process types`);
+  const typesAST = state.index.Type;
+  if (!typesAST) return;
+
+  typesAST.forEach(type => {
+    const fields = type.fields.map(field => {
+      return {
+        name: field.name,
+        ...directiveParameters(field.directive)
+      };
+    });
+    const input = {
+      name: type.name,
+      ...directiveParameters(type.directive),
+      signature: {
+        signatureType: SignatureType.PRODUCT,
+        product: {
+          fields
+        }
+      }
+    };
+    state.service.addTypes.push(input);
+  });
 };
 
 const processUnions = state => {

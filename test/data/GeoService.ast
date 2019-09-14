@@ -1,5 +1,5 @@
-[
-  {
+{
+  "service": {
     "type": "ServiceDirective",
     "parameters": [
       {
@@ -64,5 +64,108 @@
         }
       }
     ]
-  }
-]
+  },
+  "elements": [
+    {
+      "type": "Scalar",
+      "name": "Angle",
+      "directive": {
+        "type": "ScalarDirective",
+        "parameters": [
+          {
+            "type": "Parameter",
+            "key": "description",
+            "value": {
+              "type": "String",
+              "value": "An angular measurement"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Scalar",
+      "name": "Length",
+      "directive": {
+        "type": "ScalarDirective",
+        "parameters": [
+          {
+            "type": "Parameter",
+            "key": "description",
+            "value": {
+              "type": "String",
+              "value": "A length measurement"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Type",
+      "name": "Location",
+      "directive": {
+        "type": "TypeDirective",
+        "parameters": [
+          {
+            "type": "Parameter",
+            "key": "description",
+            "value": {
+              "type": "String",
+              "value": "A geo-location"
+            }
+          }
+        ]
+      },
+      "fields": [
+        {
+          "type": "Field",
+          "name": "longitude",
+          "graphQLType": {
+            "type": "GraphQLNoNull",
+            "graphQLType": {
+              "type": "GraphQLTypeRef",
+              "ref": "Angle"
+            }
+          },
+          "directive": {
+            "type": "FieldDirective",
+            "parameters": [
+              {
+                "type": "Parameter",
+                "key": "description",
+                "value": {
+                  "type": "String",
+                  "value": "the longitude in degrees"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "Field",
+          "name": "latitude",
+          "graphQLType": {
+            "type": "GraphQLNoNull",
+            "graphQLType": {
+              "type": "GraphQLTypeRef",
+              "ref": "Angle"
+            }
+          },
+          "directive": {
+            "type": "FieldDirective",
+            "parameters": [
+              {
+                "type": "Parameter",
+                "key": "description",
+                "value": {
+                  "type": "String",
+                  "value": "the latiitude in degrees"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

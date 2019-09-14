@@ -38,7 +38,7 @@ const main = async () => {
     console.log("Failed to parse input and generate an AST");
     return;
   }
-  // console.log(`ast:\n${JSON.colorStringify(ast, null, 2)}`);
+  console.log(`ast:\n${JSON.colorStringify(ast, null, 2)}`);
 
   // Persist the AST
   await fs.writeFile(astFilename, JSON.stringify(ast, null, 2));

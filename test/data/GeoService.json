@@ -1,0 +1,73 @@
+{
+  "id": "io.maana.logic.geocoord",
+  "name": "geo-coord",
+  "description": "A mock logical service for reasoning about geospatial coordinates",
+  "thumbnailUrl": "",
+  "isSystem": false,
+  "isReadOnly": false,
+  "tags": [
+    "example"
+  ],
+  "addTypes": [
+    {
+      "name": "Angle",
+      "description": "An angular measurement",
+      "signature": {
+        "signatureType": "SCALAR",
+        "scalar": {
+          "id": "io.maana.logic.geocoord:Angle"
+        }
+      }
+    },
+    {
+      "name": "Length",
+      "description": "A length measurement",
+      "signature": {
+        "signatureType": "SCALAR",
+        "scalar": {
+          "id": "io.maana.logic.geocoord:Length"
+        }
+      }
+    },
+    {
+      "name": "Location",
+      "description": "A geo-location",
+      "signature": {
+        "signatureType": "PRODUCT",
+        "product": {
+          "fields": [
+            {
+              "name": "longitude",
+              "description": "the longitude in degrees",
+              "type": {
+                "expressionType": "NONULL",
+                "nonNullOf": {
+                  "expressionType": "SCALAR",
+                  "scalar": {
+                    "locType": "THIS_SVC",
+                    "name": "Angle"
+                  }
+                }
+              }
+            },
+            {
+              "name": "latitude",
+              "description": "the latiitude in degrees",
+              "type": {
+                "expressionType": "NONULL",
+                "nonNullOf": {
+                  "expressionType": "SCALAR",
+                  "scalar": {
+                    "locType": "THIS_SVC",
+                    "name": "Angle"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "addFunctions": []
+}

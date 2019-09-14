@@ -1,0 +1,80 @@
+{
+  "id": "io.maana.logic.goodexamples",
+  "name": "Rig Examples",
+  "description": "A mock logical service for reasoning about rigs and equipment",
+  "thumbnailUrl": null,
+  "isSystem": false,
+  "isReadOnly": false,
+  "tags": [
+    "example"
+  ],
+  "addTypes": [
+    {
+      "name": "Phone",
+      "description": "A phone number",
+      "signature": {
+        "signatureType": "SCALAR",
+        "scalar": {
+          "id": "io.maana.logic.goodexamples:Phone"
+        }
+      }
+    },
+    {
+      "name": "Pressure",
+      "description": "A pressure in PSIG",
+      "signature": {
+        "signatureType": "SCALAR",
+        "scalar": {
+          "id": "io.maana.logic.goodexamples:Pressure"
+        }
+      }
+    },
+    {
+      "name": "TrainingData",
+      "description": "A dummy training datapoint for a failure model",
+      "signature": {
+        "signatureType": "SCALAR",
+        "scalar": {
+          "id": "io.maana.logic.goodexamples:TrainingData"
+        }
+      }
+    },
+    {
+      "name": "Person",
+      "description": "A person",
+      "signature": {
+        "signatureType": "PRODUCT",
+        "product": {
+          "fields": [
+            {
+              "name": "id",
+              "description": "A unique descriptor",
+              "type": {
+                "expressionType": "NONULL"
+              }
+            },
+            {
+              "name": "name",
+              "description": "A unique human readable descriptor",
+              "type": {
+                "expressionType": "NONULL"
+              }
+            },
+            {
+              "name": "phone",
+              "description": "A person's primary phone number",
+              "type": {
+                "expressionType": "SCALAR",
+                "scalar": {
+                  "locType": "THIS_SVC",
+                  "name": "Phone"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "addFunctions": []
+}

@@ -24,9 +24,13 @@ const main = async () => {
     dirname,
     path.basename(inputFilename, ".q") + ".ast"
   );
+  const jsonFilename = path.join(
+    dirname,
+    path.basename(inputFilename, ".q") + ".json"
+  );
   const gqlFilename = path.join(
     dirname,
-    path.basename(astFilename, ".ast") + ".gql"
+    path.basename(inputFilename, ".q") + ".gql"
   );
 
   // Read input file
@@ -44,11 +48,19 @@ const main = async () => {
   await fs.writeFile(astFilename, JSON.stringify(ast, null, 2));
 
   // Generate Q service request (GraphQL)
-  const gql = await generator.generateAddLogicServiceMutationFromAST(ast);
+  const inputObject = generator.generateAddLogicServiceInputObjectFromAST(ast);
+
+  // Persist the JSON
+  await fs.writeFile(jsonFilename, JSON.stringify(inputObject, null, 2));
+
+  // Generate Q service request (GraphQL)
+  const mutation = generator.generateAddLogicServiceMutationFromInputObject(
+    inputObject
+  );
   // console.log(`gql:\n${JSON.colorStringify(gql, null, 2)}`);
 
   // Persist the GraphQL
-  await fs.writeFile(gqlFilename, gql);
+  await fs.writeFile(gqlFilename, mutation);
 };
 
 main();

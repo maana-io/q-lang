@@ -59,20 +59,16 @@ const LocType = {
 // Given an AST, generate the GraphQL query (mutation) needed to add a new logic service
 const generateAddLogicServiceMutationFromAST = ast => {
   // Generate the JSON input object
-  const inputObject = generateGraphQLInputFromAST(ast);
+  const inputObject = generateAddLogicServiceInputObjectFromAST(ast);
 
   // Generate the GraphQL mutation from the input object
-  const mutation = generateGraphQLQueryFromGraphQLInput(inputObject);
+  const mutation = generateAddLogicServiceMutationFromInputObject(inputObject);
 
   return mutation;
 };
 
-// -----------------------------------------------------------------------------
-// Internal functions
-// -----------------------------------------------------------------------------
-
 // Build the input object for the addLogicService mutation
-const generateGraphQLInputFromAST = ast => {
+const generateAddLogicServiceInputObjectFromAST = ast => {
   // console.log(`ast:\n${JSON.colorStringify(ast, null, 2)}`);
 
   // Each service must have a directive that describes it
@@ -114,7 +110,44 @@ const generateGraphQLInputFromAST = ast => {
   return state.service;
 };
 
-// ----
+const generateAddLogicServiceMutationFromInputObject = inputObject => {
+  console.log(
+    `generateAddLogicServiceMutationFromInputObject:\n${JSON.colorStringify(
+      inputObject,
+      null,
+      2
+    )}`
+  );
+
+  const lines = [];
+  let level = 0;
+
+  append(lines, level, `mutation {`);
+  level++;
+  append(lines, level, `addLogicService(input: {`);
+  level++;
+  // Object.keys(serviceDefinition.service).forEach(x => {
+  //   append(lines, level, ``);
+  // });
+  // ast.forEach(node => {
+  //   console.log(`Top-level: ${node.type}`);
+  //   if (node.type === "ServiceDirective") {
+  //     onServiceDirective(node, lines, level + 1);
+  //   } else if (node.type === "Scalar") {
+  //     onScalar(node, lines, level + 1);
+  //   } else {
+  //     console.log(`Unsupported `);
+  //   }
+  // });
+  level--;
+  append(lines, 0, `}`);
+
+  return lines.join("\n");
+};
+
+// -----------------------------------------------------------------------------
+// Internal functions
+// -----------------------------------------------------------------------------
 
 const indexASTElements = elements => {
   const index = {};
@@ -277,41 +310,6 @@ const processFunctions = state => {
 
 // ----
 
-const generateGraphQLQueryFromGraphQLInput = serviceDefinition => {
-  console.log(
-    `generateGraphQLQueryFromGraphQLInput:\n${JSON.colorStringify(
-      serviceDefinition,
-      null,
-      2
-    )}`
-  );
-
-  const lines = [];
-  let level = 0;
-
-  append(lines, level, `mutation {`);
-  level++;
-  append(lines, level, `addLogicService(input: {`);
-  level++;
-  // Object.keys(serviceDefinition.service).forEach(x => {
-  //   append(lines, level, ``);
-  // });
-  // ast.forEach(node => {
-  //   console.log(`Top-level: ${node.type}`);
-  //   if (node.type === "ServiceDirective") {
-  //     onServiceDirective(node, lines, level + 1);
-  //   } else if (node.type === "Scalar") {
-  //     onScalar(node, lines, level + 1);
-  //   } else {
-  //     console.log(`Unsupported `);
-  //   }
-  // });
-  level--;
-  append(lines, 0, `}`);
-
-  return lines.join("\n");
-};
-
 const onDirectiveParameters = (node, lines, level) => {
   node.forEach(p => {
     append(lines, level, `${p.key}: ${extractValue(p.value)}`);
@@ -389,7 +387,9 @@ const append = (lines, level, str) => lines.push(indent(level, str));
 const indent = (level, str) => "  ".repeat(level) + str;
 
 module.exports = {
-  generateAddLogicServiceMutationFromAST
+  generateAddLogicServiceMutationFromAST,
+  generateAddLogicServiceInputObjectFromAST,
+  generateAddLogicServiceMutationFromInputObject
 };
 
 /*

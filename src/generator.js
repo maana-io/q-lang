@@ -52,6 +52,20 @@ const LocType = {
   THIS_SVC: "THIS_SVC"
 };
 
+const IntrinsicTypes = {
+  Boolean: "Boolean",
+  Date: "Date",
+  DateTime: "DateTime",
+  Double: "Double",
+  Float: "Float",
+  ID: "ID",
+  Int: "Int",
+  JSON: "JSON",
+  Long: "Long",
+  String: "String",
+  Time: "Time"
+};
+
 // -----------------------------------------------------------------------------
 // Exported functions
 // -----------------------------------------------------------------------------
@@ -168,15 +182,33 @@ const addToKeyedCollection = (store, key, value) => {
 // ----
 
 const generateTypeRefs = state => {
+  // Create input objects for each of the types in scope
   const typeRefs = {};
+
+  // Intrinsics
+  Object.values(IntrinsicTypes).forEach(id => {
+    typeRefs[id] = generateIntrinsicTypeRef(id);
+  });
+
+  // Imported, included, or parsed
   Object.keys(state.index).forEach(key => {
     if (!isTypeRefType(key)) return;
     state.index[key].forEach(x => {
       typeRefs[x.name] = generateTypeRef(x);
     });
   });
+
+  // Add type refs to index
   state.index.typeRefs = typeRefs;
 };
+
+const generateIntrinsicTypeRef = id => ({
+  expressionType: OfTypeSignatureType.SCALAR,
+  scalar: {
+    locType: LocType.ID,
+    id
+  }
+});
 
 const generateTypeRef = type => {
   switch (type.type) {
@@ -201,7 +233,7 @@ const generateTypeRef = type => {
   }
 };
 
-const isTypeRefType = type => Object.keys(TypeRefTypes).some(x => x === type);
+const isTypeRefType = type => Object.values(TypeRefTypes).some(x => x === type);
 
 // ----
 
@@ -251,7 +283,10 @@ const directiveParameters = directive =>
 // Recursive
 const generateFieldType = (state, graphQLType) => {
   if (graphQLType.type === GraphQLTypeTypes.GraphQLTypeRef) {
-    return state.index.typeRefs[graphQLType.name];
+    const ref = state.index.typeRefs[graphQLType.name];
+    if (ref) return ref;
+
+    throw `Undefined type referenced: ${graphQLType.name}`;
   }
 
   if (graphQLType.type === GraphQLTypeTypes.GraphQLList) {
@@ -267,6 +302,8 @@ const generateFieldType = (state, graphQLType) => {
       nonNullOf: generateFieldType(state, graphQLType.graphQLType)
     };
   }
+
+  throw `Unrecognized GraphQL Type: ${JSON.stringify(graphQLType)}`;
 };
 
 const processTypes = state => {

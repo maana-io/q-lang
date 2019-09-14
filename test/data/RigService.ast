@@ -69,74 +69,31 @@
     {
       "type": "Scalar",
       "name": "Phone",
-      "directive": {
-        "type": "ScalarDirective",
-        "parameters": [
-          {
-            "type": "Parameter",
-            "key": "description",
-            "value": {
-              "type": "String",
-              "value": "A phone number"
-            }
-          }
-        ]
-      }
+      "description": "A phone number",
+      "directive": null
     },
     {
       "type": "Scalar",
       "name": "Pressure",
-      "directive": {
-        "type": "ScalarDirective",
-        "parameters": [
-          {
-            "type": "Parameter",
-            "key": "description",
-            "value": {
-              "type": "String",
-              "value": "A pressure in PSIG"
-            }
-          }
-        ]
-      }
+      "description": "A pressure in PSIG",
+      "directive": null
     },
     {
       "type": "Scalar",
       "name": "TrainingData",
-      "directive": {
-        "type": "ScalarDirective",
-        "parameters": [
-          {
-            "type": "Parameter",
-            "key": "description",
-            "value": {
-              "type": "String",
-              "value": "A dummy training datapoint for a failure model"
-            }
-          }
-        ]
-      }
+      "description": "A dummy training datapoint for a failure model",
+      "directive": null
     },
     {
       "type": "Type",
       "name": "Person",
-      "directive": {
-        "type": "TypeDirective",
-        "parameters": [
-          {
-            "type": "Parameter",
-            "key": "description",
-            "value": {
-              "type": "String",
-              "value": "A person"
-            }
-          }
-        ]
-      },
+      "description": "A person",
+      "directive": null,
       "fields": [
         {
           "type": "Field",
           "name": "id",
+          "description": "A unique descriptor",
           "graphQLType": {
             "type": "GraphQLNoNull",
             "graphQLType": {
@@ -144,23 +101,12 @@
               "name": "ID"
             }
           },
-          "directive": {
-            "type": "FieldDirective",
-            "parameters": [
-              {
-                "type": "Parameter",
-                "key": "description",
-                "value": {
-                  "type": "String",
-                  "value": "A unique descriptor"
-                }
-              }
-            ]
-          }
+          "directive": null
         },
         {
           "type": "Field",
           "name": "name",
+          "description": "A unique human readable descriptor",
           "graphQLType": {
             "type": "GraphQLNoNull",
             "graphQLType": {
@@ -168,40 +114,17 @@
               "name": "String"
             }
           },
-          "directive": {
-            "type": "FieldDirective",
-            "parameters": [
-              {
-                "type": "Parameter",
-                "key": "description",
-                "value": {
-                  "type": "String",
-                  "value": "A unique human readable descriptor"
-                }
-              }
-            ]
-          }
+          "directive": null
         },
         {
           "type": "Field",
           "name": "phone",
+          "description": "A person's primary phone number",
           "graphQLType": {
             "type": "GraphQLTypeRef",
             "name": "Phone"
           },
-          "directive": {
-            "type": "FieldDirective",
-            "parameters": [
-              {
-                "type": "Parameter",
-                "key": "description",
-                "value": {
-                  "type": "String",
-                  "value": "A person's primary phone number"
-                }
-              }
-            ]
-          }
+          "directive": null
         }
       ]
     }

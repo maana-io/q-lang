@@ -50,14 +50,28 @@
               "name": "id",
               "description": "A unique descriptor",
               "type": {
-                "expressionType": "NONULL"
+                "expressionType": "NONULL",
+                "nonNullOf": {
+                  "expressionType": "SCALAR",
+                  "scalar": {
+                    "locType": "ID",
+                    "id": "ID"
+                  }
+                }
               }
             },
             {
               "name": "name",
               "description": "A unique human readable descriptor",
               "type": {
-                "expressionType": "NONULL"
+                "expressionType": "NONULL",
+                "nonNullOf": {
+                  "expressionType": "SCALAR",
+                  "scalar": {
+                    "locType": "ID",
+                    "id": "String"
+                  }
+                }
               }
             },
             {

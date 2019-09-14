@@ -10,15 +10,26 @@
   tags: ["example"]
 )
 
-scalar Phone        @scalar(description: "A phone number")
-scalar Pressure     @scalar(description: "A pressure in PSIG")
-scalar TrainingData @scalar(description: "A dummy training datapoint for a failure model")
+"A phone number"
+scalar Phone
 
-type Person @type(description: "A person")
-{
-  id:     ID!     @field(description: "A unique descriptor")
-  name:   String! @field(description: "A unique human readable descriptor")
-  phone:  Phone   @field(description: "A person's primary phone number")
+"A pressure in PSIG"
+scalar Pressure
+
+"A dummy training datapoint for a failure model"
+scalar TrainingData
+
+"A person"
+type Person {
+  
+  "A unique descriptor"
+  id: ID!
+  
+  "A unique human readable descriptor"
+  name: String!
+  
+  "A person's primary phone number"
+  phone:Phone
 }
 
 ###

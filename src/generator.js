@@ -6,6 +6,29 @@ require("node-json-color-stringify");
 // -----------------------------------------------------------------------------
 // Constants
 // -----------------------------------------------------------------------------
+
+// ------------------------------------
+// AST
+// ------------------------------------
+
+const TypeRefTypes = {
+  Scalar: "Scalar",
+  Interface: "Interface",
+  Type: "Type",
+  Union: "Union",
+  Enum: "Enum"
+};
+
+const GraphQLTypeTypes = {
+  GraphQLTypeRef: "GraphQLTypeRef",
+  GraphQLList: "GraphQLList",
+  GraphQLNoNull: "GraphQLNoNull"
+};
+
+// ------------------------------------
+// Catalog Service
+// ------------------------------------
+
 const OfTypeSignatureType = {
   TYPE: "TYPE",
   LIST: "LIST",
@@ -65,11 +88,15 @@ const generateGraphQLInputFromAST = ast => {
 
   // The AST is a collection of parsed nodes of specific type.
   // Build an index by type to simplify retrieval.
-  const index = generateIndexFromASTElements(ast.elements);
-  // console.log(`index:\n${JSON.colorStringify(index, null, 2)}`);
+  const index = indexASTElements(ast.elements);
 
   // We'll pass these structures around as state
   const state = { service, index };
+
+  // Generate type ref input objects for this service (i.e, LocType.THIS_SVC)
+  generateTypeRefs(state);
+
+  // console.log(`state (pre):\n${JSON.colorStringify(state, null, 2)}`);
 
   const ProcessingSteps = [
     processIncludes, // must be first
@@ -86,6 +113,64 @@ const generateGraphQLInputFromAST = ast => {
 
   return state.service;
 };
+
+// ----
+
+const indexASTElements = elements => {
+  const index = {};
+  elements.forEach(el => {
+    addToKeyedCollection(index, el.type, el);
+  });
+  return index;
+};
+
+const addToKeyedCollection = (store, key, value) => {
+  if (!store[key]) {
+    store[key] = [value];
+  } else {
+    store[key].push(value);
+  }
+};
+
+// ----
+
+const generateTypeRefs = state => {
+  const typeRefs = {};
+  Object.keys(state.index).forEach(key => {
+    if (!isTypeRefType(key)) return;
+    state.index[key].forEach(x => {
+      typeRefs[x.name] = generateTypeRef(x);
+    });
+  });
+  state.index.typeRefs = typeRefs;
+};
+
+const generateTypeRef = type => {
+  switch (type.type) {
+    case TypeRefTypes.Scalar:
+      return {
+        expressionType: OfTypeSignatureType.SCALAR,
+        scalar: {
+          locType: LocType.THIS_SVC,
+          name: type.name
+        }
+      };
+    case TypeRefTypes.Type:
+      return {
+        expressionType: OfTypeSignatureType.TYPE,
+        type: {
+          locType: LocType.THIS_SVC,
+          name: type.name
+        }
+      };
+    default:
+      return { todo: "@@TODO" };
+  }
+};
+
+const isTypeRefType = type => Object.keys(TypeRefTypes).some(x => x === type);
+
+// ----
 
 const processIncludes = state => {
   console.log(`@@TODO: process includes`);
@@ -129,17 +214,43 @@ const processInterfaces = state => {
 const directiveParameters = directive =>
   directive ? paramsToObject(directive.parameters) : {};
 
+// Recursive
+const generateFieldType = (state, graphQLType) => {
+  if (graphQLType.type === GraphQLTypeTypes.GraphQLTypeRef) {
+    return state.index.typeRefs[graphQLType.name];
+  }
+
+  if (graphQLType.type === GraphQLTypeTypes.GraphQLList) {
+    return {
+      expressionType: OfTypeSignatureType.LIST,
+      listOf: generateFieldType(state, graphQLType.graphQLType)
+    };
+  }
+
+  if (graphQLType.type === GraphQLTypeTypes.GraphQLNoNull) {
+    return {
+      expressionType: OfTypeSignatureType.NONULL,
+      nonNullOf: generateFieldType(state, graphQLType.graphQLType)
+    };
+  }
+};
+
 const processTypes = state => {
   const typesAST = state.index.Type;
   if (!typesAST) return;
 
   typesAST.forEach(type => {
+    // First, generate the fields
     const fields = type.fields.map(field => {
+      // console.log(`Field: ${JSON.colorStringify(field)}`);
       return {
         name: field.name,
-        ...directiveParameters(field.directive)
+        ...directiveParameters(field.directive),
+        type: generateFieldType(state, field.graphQLType)
       };
     });
+
+    // Next, generate the type input object, referencing the fields
     const input = {
       name: type.name,
       ...directiveParameters(type.directive),
@@ -150,6 +261,8 @@ const processTypes = state => {
         }
       }
     };
+
+    // Save the input object
     state.service.addTypes.push(input);
   });
 };
@@ -162,19 +275,7 @@ const processFunctions = state => {
   console.log(`@@TODO: process functions`);
 };
 
-const addToKeyedCollection = (store, key, value) => {
-  if (!store[key]) {
-    store[key] = [value];
-  } else {
-    store[key].push(value);
-  }
-};
-
-const generateIndexFromASTElements = elements => {
-  const index = {};
-  elements.forEach(el => addToKeyedCollection(index, el.type, el));
-  return index;
-};
+// ----
 
 const generateGraphQLQueryFromGraphQLInput = serviceDefinition => {
   console.log(

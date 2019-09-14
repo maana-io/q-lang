@@ -218,8 +218,8 @@ function peg$parse(input, options) {
       peg$c30 = function() {
           return {}
         },
-      peg$c31 = function(ref) { 
-          return { type: "GraphQLTypeRef", ref } 
+      peg$c31 = function(name) { 
+          return { type: "GraphQLTypeRef", name } 
         },
       peg$c32 = function(graphQLType) { 
           return { type: "GraphQLList", graphQLType }

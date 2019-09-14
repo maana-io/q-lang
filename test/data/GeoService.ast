@@ -124,7 +124,7 @@
             "type": "GraphQLNoNull",
             "graphQLType": {
               "type": "GraphQLTypeRef",
-              "ref": "Angle"
+              "name": "Angle"
             }
           },
           "directive": {
@@ -148,7 +148,7 @@
             "type": "GraphQLNoNull",
             "graphQLType": {
               "type": "GraphQLTypeRef",
-              "ref": "Angle"
+              "name": "Angle"
             }
           },
           "directive": {

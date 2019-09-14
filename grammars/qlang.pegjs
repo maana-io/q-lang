@@ -223,8 +223,8 @@ GraphQLType
 
 // A simple reference to a GraphQL type, e.g., String, Person
 GraphQLTypeRef
-  = ref:Identifier { 
-    return { type: "GraphQLTypeRef", ref } 
+  = name:Identifier { 
+    return { type: "GraphQLTypeRef", name } 
   }
 
 // A collection of GraphQL type (could be nested, not null)    

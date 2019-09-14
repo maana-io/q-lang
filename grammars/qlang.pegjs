@@ -178,7 +178,8 @@ Declaration
 // ----------------------------------------------------------------------------
 
 FunctionDeclaration
-  = FunctionToken __ name:Identifier __
+  = description:Description? __
+    FunctionToken __ name:Identifier __
     "(" __ params:(FormalParameterList __)? ")" __
     directive:FunctionDirective? __
     "{" __ body:FunctionBody __ "}"
@@ -186,6 +187,7 @@ FunctionDeclaration
       return { 
         type: "Function",
         name,
+        description,
         params: optionalList(extractOptional(params, 0)),
         directive,
         body        
@@ -209,6 +211,17 @@ FunctionDirective
   = "@" FunctionToken __ "(" ")" {
     return {}
   }
+
+// ----------------------------------------------------------------------------
+// Descriptions
+// https://graphql.github.io/graphql-spec/June2018/#sec-Descriptions
+// ----------------------------------------------------------------------------
+
+Description
+  = '"""' chars:(!'"""' SourceCharacter)* '"""' {
+    return chars.map(x => x[1]).join("").trim()
+  }
+  / literal:StringLiteral { return literal.value } 
 
 // ----------------------------------------------------------------------------
 // GraphQL
@@ -250,12 +263,14 @@ GraphQLNoNull
 // ----------------------------------------------------------------------------
 
 ScalarDeclaration
-  = ScalarToken __ name:Identifier __
+  = description:Description? __
+    ScalarToken __ name:Identifier __
     directive:ScalarDirective? __
     {
       return { 
         type: "Scalar",
         name,
+        description,
         directive
       }
     }
@@ -273,13 +288,15 @@ ScalarDirective
 // ----------------------------------------------------------------------------
 
 InterfaceDeclaration
-  = InterfaceToken __ name:Identifier __
+  = description:Description? __
+    InterfaceToken __ name:Identifier __
     directive:InterfaceDirective? __
     "{" __ body:InterfaceBody __ "}"
     {
       return { 
         interface: {
           name,
+          description,
           directive,
           body
         }
@@ -304,13 +321,15 @@ InterfaceDirective
 // ----------------------------------------------------------------------------
 
 TypeDeclaration
-  = TypeToken __ name:Identifier __
+  = description:Description? __
+    TypeToken __ name:Identifier __
     directive:TypeDirective? __
     "{" __ fields:TypeFields __ "}"
   {
     return { 
       type: "Type",
       name,
+      description,
       directive,
       fields
     }
@@ -330,10 +349,17 @@ TypeFields
   }
 
 TypeField
-  = name:Identifier __ ":" __ graphQLType:GraphQLType __
+  = description:Description? __
+    name:Identifier __ ":" __ graphQLType:GraphQLType __
     directive:FieldDirective? __
   {
-    return { type: "Field", name, graphQLType, directive }
+    return { 
+      type: "Field", 
+      name, 
+      description,
+      graphQLType,
+      directive 
+      }
   }
 
 FieldDirective
@@ -349,12 +375,13 @@ FieldDirective
 // ----------------------------------------------------------------------------
 
 UnionDeclaration
-  = UnionToken __ name:Identifier __
+  = description:Description? __
+    UnionToken __ name:Identifier __
     {
       return { 
-        union: {
-          name
-        }
+        type: "Union",
+        name,
+        description
       }
     }
 
@@ -363,17 +390,18 @@ UnionDeclaration
 // ----------------------------------------------------------------------------
 
 EnumDeclaration
-  = EnumToken __ name:Identifier __
+  = description:Description? __
+    EnumToken __ name:Identifier __
     directive:EnumDirective? __
     "{" __ body:EnumBody __ "}"
     {
       return { 
-        EnumDeclaration: {
-          name,
-          params: optionalList(extractOptional(params, 0)),
-          directive,
-          body
-        }
+        type: "Enum",
+        name,
+        descriptionm,
+        params: optionalList(extractOptional(params, 0)),
+        directive,
+        body
       }
     }
 

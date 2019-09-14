@@ -224,7 +224,8 @@ const processScalars = state => {
       : {};
     const input = {
       name: scalar.name,
-      ...meta,
+      description: scalar.description,
+      ...meta, // may override name or description
       signature: {
         signatureType: SignatureType.SCALAR,
         scalar: {
@@ -278,6 +279,7 @@ const processTypes = state => {
       // console.log(`Field: ${JSON.colorStringify(field)}`);
       return {
         name: field.name,
+        description: field.description,
         ...directiveParameters(field.directive),
         type: generateFieldType(state, field.graphQLType)
       };
@@ -286,7 +288,8 @@ const processTypes = state => {
     // Next, generate the type input object, referencing the fields
     const input = {
       name: type.name,
-      ...directiveParameters(type.directive),
+      description: type.description,
+      ...directiveParameters(type.directive), // may override name or description
       signature: {
         signatureType: SignatureType.PRODUCT,
         product: {

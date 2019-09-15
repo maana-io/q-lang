@@ -149,9 +149,22 @@ Statement
 // Import statement
 // ----------------------------------------------------------------------------
 ImportStatement
-  = ImportToken __ name:StringLiteral {
-      return { type: "Import", serviceId: name.String }
+  = ImportToken __ "{" __ imports:Imports __ "}" __ 
+    FromToken __ alias:(Identifier __ ":")? __ name:StringLiteral {
+      return { 
+        type: "Import",
+        service: {
+          id: name.value,
+          alias: alias[0] 
+        },
+        imports
+      }
     }
+
+Imports
+  = head:Identifier tail:(__ Identifier)* {
+    return buildList(head, tail, 1)
+  } 
 
 // ----------------------------------------------------------------------------
 // Include statement
@@ -434,6 +447,7 @@ TypeToken       = "type"        !IdentifierPart
 FieldToken      = "field"       !IdentifierPart
 UnionToken      = "union"       !IdentifierPart
 EnumToken       = "enum"        !IdentifierPart
+FromToken       = "from"        !IdentifierPart
 
 // ---
 

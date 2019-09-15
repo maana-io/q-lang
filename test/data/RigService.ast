@@ -67,6 +67,16 @@
   },
   "elements": [
     {
+      "type": "Import",
+      "service": {
+        "id": "io.maana.logic.geocoord",
+        "alias": "geo"
+      },
+      "imports": [
+        "Length"
+      ]
+    },
+    {
       "type": "Scalar",
       "name": "Phone",
       "description": "A phone number",
@@ -123,6 +133,107 @@
           "graphQLType": {
             "type": "GraphQLTypeRef",
             "name": "Phone"
+          },
+          "directive": null
+        }
+      ]
+    },
+    {
+      "type": "Type",
+      "name": "Manufacturer",
+      "description": "A Manufacturer",
+      "directive": null,
+      "fields": [
+        {
+          "type": "Field",
+          "name": "id",
+          "description": "A unique descriptor",
+          "graphQLType": {
+            "type": "GraphQLNoNull",
+            "graphQLType": {
+              "type": "GraphQLTypeRef",
+              "name": "ID"
+            }
+          },
+          "directive": null
+        },
+        {
+          "type": "Field",
+          "name": "name",
+          "description": "A unique human readable descriptor",
+          "graphQLType": {
+            "type": "GraphQLNoNull",
+            "graphQLType": {
+              "type": "GraphQLTypeRef",
+              "name": "String"
+            }
+          },
+          "directive": null
+        },
+        {
+          "type": "Field",
+          "name": "representatives",
+          "description": "the manufacturer's representatives",
+          "graphQLType": {
+            "type": "GraphQLList",
+            "graphQLType": {
+              "type": "GraphQLTypeRef",
+              "name": "Person"
+            }
+          },
+          "directive": null
+        }
+      ]
+    },
+    {
+      "type": "Type",
+      "name": "Pipe",
+      "description": "A Pipe",
+      "directive": null,
+      "fields": [
+        {
+          "type": "Field",
+          "name": "pressureRating",
+          "description": "the maximum rated pressure of the pipe in PSIG",
+          "graphQLType": {
+            "type": "GraphQLTypeRef",
+            "name": "Pressure"
+          },
+          "directive": null
+        },
+        {
+          "type": "Field",
+          "name": "length",
+          "description": "The length of the pipe in feet",
+          "graphQLType": {
+            "type": "GraphQLNoNull",
+            "graphQLType": {
+              "type": "GraphQLTypeRef",
+              "name": "Length"
+            }
+          },
+          "directive": null
+        },
+        {
+          "type": "Field",
+          "name": "insideDiameter",
+          "description": "The insideDiameter of the pipe, in inches",
+          "graphQLType": {
+            "type": "GraphQLNoNull",
+            "graphQLType": {
+              "type": "GraphQLTypeRef",
+              "name": "Length"
+            }
+          },
+          "directive": null
+        },
+        {
+          "type": "Field",
+          "name": "hoursInService",
+          "description": "The number of hours that the equipment has been in service",
+          "graphQLType": {
+            "type": "GraphQLTypeRef",
+            "name": "Long"
           },
           "directive": null
         }

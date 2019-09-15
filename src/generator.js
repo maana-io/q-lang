@@ -194,12 +194,12 @@ const generateTypeRefs = state => {
   Object.keys(state.index).forEach(key => {
     if (!isTypeRefType(key)) return;
     state.index[key].forEach(x => {
-      typeRefs[x.name] = generateTypeRef(x);
+      typeRefs[x.name] = generateLocalTypeRef(x);
     });
   });
 
   // Add type refs to index
-  state.index.typeRefs = typeRefs;
+  state.typeRefs = typeRefs;
 };
 
 const generateIntrinsicTypeRef = id => ({
@@ -210,7 +210,7 @@ const generateIntrinsicTypeRef = id => ({
   }
 });
 
-const generateTypeRef = type => {
+const generateLocalTypeRef = type => {
   switch (type.type) {
     case TypeRefTypes.Scalar:
       return {
@@ -233,6 +233,15 @@ const generateTypeRef = type => {
   }
 };
 
+const generateImportedTypeRef = (name, id) => ({
+  expressionType: OfTypeSignatureType.SCALAR,
+  scalar: {
+    locType: LocType.NAME_AND_SVC,
+    name,
+    id
+  }
+});
+
 const isTypeRefType = type => Object.values(TypeRefTypes).some(x => x === type);
 
 // ----
@@ -241,8 +250,35 @@ const processIncludes = state => {
   console.log(`@@TODO: process includes`);
 };
 
+// Imports consist of a service ID along with optional alias and
+// selected imports (e.g., types, functions).  For example:
+//
+//   import { Location } from geo:io.maana.geo
+//            ^               ^   ^
+//      actual import     alias   service id
+//
+// An imported type may be referenced either directly (e.g., Location),
+// if unambiguous, or using the alias prefix (e.g., geo:Location).
 const processImports = state => {
-  console.log(`@@TODO: process imports`);
+  const importAST = state.index.Import;
+  if (!importAST) return;
+
+  // Index by service id and alias (if any)
+  importAST.forEach(imp => {
+    console.log(`import: ${JSON.colorStringify(imp)}`);
+    imp.imports.forEach(x => {
+      const typeRef = generateImportedTypeRef(x, imp.service.id);
+      if (!state.typeRefs[x]) {
+        state.typeRefs[x] = typeRef;
+      } else if (!imp.service.alias) {
+        throw `Ambiguous imported type from service without alias: ${JSON.stringify(
+          imp
+        )}`;
+      }
+      // Also index the typeref by alias
+      state.typeRefs[`${imp.service.alias}:${x}`] = typeRef;
+    });
+  });
 };
 
 // Generate AddNamedTypeInput objects for each scalar (if any)
@@ -283,7 +319,7 @@ const directiveParameters = directive =>
 // Recursive
 const generateFieldType = (state, graphQLType) => {
   if (graphQLType.type === GraphQLTypeTypes.GraphQLTypeRef) {
-    const ref = state.index.typeRefs[graphQLType.name];
+    const ref = state.typeRefs[graphQLType.name];
     if (ref) return ref;
 
     throw `Undefined type referenced: ${graphQLType.name}`;

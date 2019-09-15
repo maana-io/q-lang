@@ -10,6 +10,8 @@
   tags: ["example"]
 )
 
+import { Length } from geo:"io.maana.logic.geocoord"
+
 "A phone number"
 scalar Phone
 
@@ -32,116 +34,35 @@ type Person {
   phone:Phone
 }
 
-###
+"A Manufacturer"
+type Manufacturer {
 
-  // Add the "Person" Product type.
-  {
-    name: "Person",
-    description: "A Person",
-    signature: {
-      signatureType: SignatureType.PRODUCT,
-      product: {
-        fields: [
-          {
-            name: "id",
-            description: "A unique descriptor",
-            type: {
-              expressionType: OfTypeSignatureType.NONULL,
-              nonNullOf: IDRef
-            }
-          },
-          {
-            name: "name",
-            description: "A unique human readable descriptor",
-            type: {
-              expressionType: OfTypeSignatureType.NONULL,
-              nonNullOf: StringRef
-            }
-          },
-          //{name:"address", description:"the person"s home address", type: new NonNullType({ of: GeoLocationRef }) }),
-          {
-            name: "phone",
-            description: "A person"s primary phone number",
-            type: PhoneRef
-          }
-        ]
-      }
-    }
-  },
-  // Add the "Manufacturer" Product type
-  {
-    name: "Manufacturer",
-    description: "A Manufacturer",
-    signature: {
-      signatureType: SignatureType.PRODUCT,
-      product: {
-        fields: [
-          {
-            name: "id",
-            description: "A unique descriptor",
-            type: {
-              expressionType: OfTypeSignatureType.NONULL,
-              nonNullOf: IDRef
-            }
-          },
-          {
-            name: "name",
-            description: "A unique human readable descriptor",
-            type: {
-              expressionType: OfTypeSignatureType.NONULL,
-              nonNullOf: StringRef
-            }
-          },
-          {
-            name: "representatives",
-            description: "the manufacturer"s representatives",
-            type: {
-              expressionType: OfTypeSignatureType.LIST,
-              listOf: PersonRef
-            }
-          }
-        ]
-      }
-    }
-  },
-  // Add the "Pipe" Product type
-  {
-    name: "Pipe",
-    description: "A Pipe",
-    signature: {
-      signatureType: SignatureType.PRODUCT,
-      product: {
-        fields: [
-          {
-            name: "pressureRating",
-            description: "the maximum rated pressure of the pipe in PSIG",
-            type: PressureRef
-          },
-          {
-            name: "length",
-            description: "The length of the pipe in feet",
-            type: {
-              expressionType: OfTypeSignatureType.NONULL,
-              nonNullOf: LengthRef
-            }
-          },
-          {
-            name: "insideDiameter",
-            description: "The insideDiameter of the pipe, in inches",
-            type: {
-              expressionType: OfTypeSignatureType.NONULL,
-              nonNullOf: LengthRef
-            }
-          },
-          {
-            name: "hoursInService",
-            description: "The number of hours that the equipment has been in service",
-            type: LongRef
-          }
-        ]
-      }
-    }
-  },
+  "A unique descriptor"
+  id: ID!
+
+  "A unique human readable descriptor"
+  name: String!
+
+  "the manufacturer's representatives"
+  representatives: [Person]
+}
+
+"A Pipe"
+type Pipe {
+  "the maximum rated pressure of the pipe in PSIG"
+  pressureRating: Pressure
+  
+  "The length of the pipe in feet"
+  length: Length!
+  
+  "The insideDiameter of the pipe, in inches"
+  insideDiameter: Length!
+
+  "The number of hours that the equipment has been in service"
+  hoursInService: Long
+}
+
+###
   // Add the "Pump" Product type
   {
     name: "Pump",

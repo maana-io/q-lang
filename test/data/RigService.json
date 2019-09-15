@@ -88,6 +88,122 @@
           ]
         }
       }
+    },
+    {
+      "name": "Manufacturer",
+      "description": "A Manufacturer",
+      "signature": {
+        "signatureType": "PRODUCT",
+        "product": {
+          "fields": [
+            {
+              "name": "id",
+              "description": "A unique descriptor",
+              "type": {
+                "expressionType": "NONULL",
+                "nonNullOf": {
+                  "expressionType": "SCALAR",
+                  "scalar": {
+                    "locType": "ID",
+                    "id": "ID"
+                  }
+                }
+              }
+            },
+            {
+              "name": "name",
+              "description": "A unique human readable descriptor",
+              "type": {
+                "expressionType": "NONULL",
+                "nonNullOf": {
+                  "expressionType": "SCALAR",
+                  "scalar": {
+                    "locType": "ID",
+                    "id": "String"
+                  }
+                }
+              }
+            },
+            {
+              "name": "representatives",
+              "description": "the manufacturer's representatives",
+              "type": {
+                "expressionType": "LIST",
+                "listOf": {
+                  "expressionType": "TYPE",
+                  "type": {
+                    "locType": "THIS_SVC",
+                    "name": "Person"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Pipe",
+      "description": "A Pipe",
+      "signature": {
+        "signatureType": "PRODUCT",
+        "product": {
+          "fields": [
+            {
+              "name": "pressureRating",
+              "description": "the maximum rated pressure of the pipe in PSIG",
+              "type": {
+                "expressionType": "SCALAR",
+                "scalar": {
+                  "locType": "THIS_SVC",
+                  "name": "Pressure"
+                }
+              }
+            },
+            {
+              "name": "length",
+              "description": "The length of the pipe in feet",
+              "type": {
+                "expressionType": "NONULL",
+                "nonNullOf": {
+                  "expressionType": "SCALAR",
+                  "scalar": {
+                    "locType": "NAME_AND_SVC",
+                    "name": "Length",
+                    "id": "io.maana.logic.geocoord"
+                  }
+                }
+              }
+            },
+            {
+              "name": "insideDiameter",
+              "description": "The insideDiameter of the pipe, in inches",
+              "type": {
+                "expressionType": "NONULL",
+                "nonNullOf": {
+                  "expressionType": "SCALAR",
+                  "scalar": {
+                    "locType": "NAME_AND_SVC",
+                    "name": "Length",
+                    "id": "io.maana.logic.geocoord"
+                  }
+                }
+              }
+            },
+            {
+              "name": "hoursInService",
+              "description": "The number of hours that the equipment has been in service",
+              "type": {
+                "expressionType": "SCALAR",
+                "scalar": {
+                  "locType": "ID",
+                  "id": "Long"
+                }
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "addFunctions": []

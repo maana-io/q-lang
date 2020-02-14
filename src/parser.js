@@ -1,7 +1,6 @@
 require("node-json-color-stringify");
 
 const peg = require("pegjs");
-// const nearley = require("nearley");
 const qlang = require("./grammar");
 
 const parse = input => {

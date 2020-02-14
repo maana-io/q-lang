@@ -154,7 +154,9 @@ const generateAddLogicServiceMutationFromInputObject = inputObject => {
   //   }
   // });
   level--;
-  append(lines, 0, `}`);
+  append(lines, level, `})`);
+  level--;
+  append(lines, level, `}`);
 
   return lines.join("\n");
 };
@@ -253,9 +255,9 @@ const processIncludes = state => {
 // Imports consist of a service ID along with optional alias and
 // selected imports (e.g., types, functions).  For example:
 //
-//   import { Location } from geo:io.maana.geo
-//            ^               ^   ^
-//      actual import     alias   service id
+//   import { Location } from "io.maana.geo" as geo
+//            ^               ^                 ^
+//      actual import         service id        alias
 //
 // An imported type may be referenced either directly (e.g., Location),
 // if unambiguous, or using the alias prefix (e.g., geo:Location).
@@ -390,39 +392,6 @@ const onDirectiveParameters = (node, lines, level) => {
   node.forEach(p => {
     append(lines, level, `${p.key}: ${extractValue(p.value)}`);
   });
-  // append(lines, level, `name: "${ast.service.name}"`);
-  // append(lines, level, `description: "${ast.service.description}"`);
-  // append(lines, level, `addTypes: [`);
-  // for (const def of ast.definitions.filter(x => x["type"] !== undefined)) {
-  //   append(lines, level, `      {`);
-  //   append(lines, level, `        name: "${def.type.name}"`);
-  //   append(lines, level, `        signature: {`);
-  //   append(lines, level, `          signatureType: ${SignatureType.PRODUCT}`);
-  //   append(lines, level, `          product: {`);
-  //   append(lines, level, `            fields: [`);
-  //   for (const field of def.type.fields) {
-  //     append(lines, level, `              {`);
-  //     append(lines, level, `                name: "${field.name}"`);
-  //     append(lines, level, `                type: {`);
-  //     emitType(field.type, lines, level);
-  //     append(lines, level, `                }`);
-  //     append(lines, level, `              }`);
-  //   }
-  //   append(lines, level, `            ]`); // fields
-  //   append(lines, level, `          }`); // product
-  //   append(lines, level, `        }`); // signature
-  //   append(lines, level, `      }`); // field
-  // }
-  // append(lines, level, `    ]`); // types
-  // append(lines, level, `    addFunctions: [`);
-  // for (const def of ast.definitions.filter(x => x["function"] !== undefined)) {
-  //   append(lines, level, `      {`);
-  //   append(lines, level, `        name: "${def.function.name}"`);
-  //   append(lines, level, `      }`); // type
-  // }
-  // append(lines, level, `    ]`); // functions
-  // append(lines, level, `  })`);
-  // append(lines, level, `  { id }`);
 };
 
 const paramValueToJSON = paramValue => {
@@ -434,6 +403,7 @@ const paramValueToJSON = paramValue => {
   }
 };
 
+// Convert a collections of key-value pairs into a JavaScript object
 const paramsToObject = params => {
   // console.log(`paramsToObject: ${JSON.stringify(params)}}`);
   const obj = {};
